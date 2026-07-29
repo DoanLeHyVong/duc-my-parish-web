@@ -1,0 +1,45 @@
+export type MenuItem = { id: number; label: string; url?: string; target: string; parentId?: number };
+export type Post = {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  seoTitle?: string;
+  publishedAt?: string;
+  isFeatured: boolean;
+  viewCount: number;
+  featuredImage?: { secureUrl: string; altText?: string };
+  categories?: { category: Category }[];
+};
+export type Category = { id: number; name: string; slug: string };
+export type Banner = { id: number; title: string; subtitle?: string; imageUrl: string };
+export type Announcement = { id: number; title: string; content: string; startsAt: string };
+export type MassSchedule = { id: number; dayOfWeek: number; startTime: string; massType: string; location: string };
+export type Event = { id: number; title: string; slug: string; description: string; startsAt: string; location: string; imageUrl?: string };
+export type Album = { id: number; title: string; slug: string; coverUrl?: string; eventDate?: string };
+export type ParishProfile = {
+  name: string;
+  diocese: string;
+  description: string;
+  address: string;
+  phone?: string;
+  email?: string;
+  mapEmbedUrl?: string;
+  logoUrl?: string;
+  heroUrl?: string;
+  facebookUrl?: string;
+  youtubeUrl?: string;
+};
+export type HomeSection = { id: number; sectionKey: string; title: string; componentType: string; displayLimit: number };
+export type HomeData = {
+  profile: ParishProfile | null;
+  banners: Banner[];
+  menu: { items: MenuItem[] } | null;
+  sections: HomeSection[];
+  posts: Post[];
+  announcements: Announcement[];
+  massSchedules: MassSchedule[];
+  events: Event[];
+  albums: Album[];
+};
