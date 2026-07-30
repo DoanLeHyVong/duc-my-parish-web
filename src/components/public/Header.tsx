@@ -21,7 +21,7 @@ export function Header({ data }: { data?: HomeData }) {
     : fallbackNav;
   const date = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date());
   return (
-    <header>
+    <header id="menu-trang-chu">
       <div className="topbar">
         <div className="container topbar-inner">
           <span><MapPin size={14} /> {data?.profile?.address || 'Giáo xứ Đức Mỹ — Giáo phận Bà Rịa'}</span>
