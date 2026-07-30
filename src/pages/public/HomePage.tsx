@@ -12,7 +12,7 @@ import { LoadingState } from '../../components/common/LoadingState';
 import { PostCard } from '../../components/public/PostCard';
 import { SectionHeading } from '../../components/public/SectionHeading';
 
-const fallbackHero = 'https://images.unsplash.com/photo-1520637836862-4d197d17c90a?auto=format&fit=crop&w=2000&q=85';
+const fallbackHero = '/hero-duc-my-v2.png';
 const categoryPosts = (posts: any[], slug: string) => posts.filter((p) => p.categories?.some((c: any) => c.category.slug === slug));
 
 export function HomePage() {
@@ -39,7 +39,8 @@ export function HomePage() {
       <section className="hero" style={{ backgroundImage: `url("${hero?.imageUrl || d.profile?.heroUrl || fallbackHero}")` }}>
         <div className="hero-overlay" />
         <div className="container hero-content">
-          <span className="hero-eyebrow"><i /> GIÁO PHẬN BÀ RỊA</span>
+          <span className="hero-eyebrow">GIÁO PHẬN BÀ RỊA</span>
+          <span className="hero-ornament" aria-hidden="true"><i />✣<i /></span>
           <h1>Giáo xứ <em>Đức Mỹ</em></h1>
           <p>{hero?.subtitle || 'Hiệp nhất trong đức tin — Lan tỏa yêu thương'}</p>
           <div className="hero-buttons"><Link className="button gold" to="/gio-le"><Clock3 /> Xem giờ lễ</Link><Link className="button glass" to="/chuyen-muc/thong-bao"><Bell /> Thông báo mới</Link></div>
@@ -47,8 +48,8 @@ export function HomePage() {
       </section>
       <section className="quick-info">
         <div className="container quick-grid">
-          <div className="quick-card mass"><div className="quick-icon"><Church /></div><div><span>THÁNH LỄ HÔM NAY</span><strong>{todayMasses.length ? todayMasses.map((m) => m.startTime).join('  •  ') : 'Xin xem lịch tuần'}</strong><small>Tại Nhà thờ Giáo xứ Đức Mỹ</small></div><Link to="/gio-le"><ArrowRight /></Link></div>
-          <div className="quick-card notice"><div className="quick-icon"><Bell /></div><div><span>THÔNG BÁO MỚI NHẤT</span><strong>{d.announcements[0]?.title || 'Chưa có thông báo mới'}</strong><small>{d.announcements[0]?.content}</small></div><Link to="/chuyen-muc/thong-bao"><ArrowRight /></Link></div>
+          <div className="quick-card mass"><div className="quick-icon"><Clock3 /></div><div><span>THÁNH LỄ HÔM NAY</span><strong>{todayMasses.length ? todayMasses.map((m) => m.startTime).join('  •  ') : 'Xin xem lịch tuần'}</strong></div><Link to="/gio-le"><ArrowRight /></Link></div>
+          <div className="quick-card notice"><div className="quick-icon"><Bell /></div><div><span>THÔNG BÁO MỚI NHẤT</span><strong>{d.announcements[0]?.title || 'Chưa có thông báo mới'}</strong></div><Link to="/chuyen-muc/thong-bao"><ArrowRight /></Link></div>
         </div>
       </section>
       <section className="section about-section">

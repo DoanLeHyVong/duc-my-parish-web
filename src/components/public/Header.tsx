@@ -1,4 +1,4 @@
-import { CalendarDays, Church, MapPin, Menu, Search, X } from 'lucide-react';
+import { CalendarDays, MapPin, Menu, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import type { HomeData } from '../../types';
@@ -25,15 +25,15 @@ export function Header({ data }: { data?: HomeData }) {
       <div className="topbar">
         <div className="container topbar-inner">
           <span><MapPin size={14} /> {data?.profile?.address || 'Giáo xứ Đức Mỹ — Giáo phận Bà Rịa'}</span>
-          <Church size={18} className="topbar-church" />
+          <span className="topbar-cross" aria-hidden="true">✣</span>
           <span><CalendarDays size={14} /> {date}</span>
         </div>
       </div>
       <div className="navbar">
         <div className="container nav-inner">
           <Link to="/" className="brand" aria-label="Giáo xứ Đức Mỹ">
-            {data?.profile?.logoUrl ? <img src={data.profile.logoUrl} alt="Logo Giáo xứ Đức Mỹ" /> : <span className="brand-mark">✝</span>}
-            <span><small>GIÁO PHẬN BÀ RỊA</small><strong>GIÁO XỨ ĐỨC MỸ</strong></span>
+            {data?.profile?.logoUrl ? <img src={data.profile.logoUrl} alt="Logo Giáo xứ Đức Mỹ" /> : <span className="parish-seal"><i>GIÁO XỨ ĐỨC MỸ</i><b>✝</b><em>ĐM</em><small>GIÁO PHẬN BÀ RỊA</small></span>}
+            <span className="brand-title"><strong>GIÁO XỨ ĐỨC MỸ</strong></span>
           </Link>
           <nav className={open ? 'open' : ''}>
             {nav.map(([label, url]) => <NavLink key={`${label}-${url}`} to={url!} onClick={() => setOpen(false)}>{label}</NavLink>)}
