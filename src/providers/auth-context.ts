@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react';
 
-export type Admin = { id: number; fullName: string; email: string };
+export type Admin = { id: number; fullName: string; username: string; email: string };
 export type AuthValue = {
   admin: Admin | null;
   ready: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 export const AuthContext = createContext<AuthValue | null>(null);

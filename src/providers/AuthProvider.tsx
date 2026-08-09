@@ -14,8 +14,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthValue>(() => ({
     admin,
     ready,
-    async login(email, password) {
-      const response = await api.post('/auth/login', { email, password });
+    async login(username, password) {
+      const response = await api.post('/auth/login', { username, password });
       setAccessToken(response.data.data.accessToken);
       setAdmin(response.data.data.admin);
     },

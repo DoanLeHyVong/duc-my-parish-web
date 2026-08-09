@@ -34,7 +34,7 @@ export function HomePage() {
       <Helmet>
         <title>Giáo xứ Đức Mỹ | Giáo phận Bà Rịa</title>
         <meta name="description" content="Cổng thông tin Giáo xứ Đức Mỹ — Hiệp nhất trong đức tin, lan tỏa yêu thương." />
-        <link rel="canonical" href={import.meta.env.VITE_SITE_URL || 'http://localhost:5173'} />
+        <link rel="canonical" href={import.meta.env.VITE_SITE_URL || (import.meta.env.DEV ? 'http://localhost:5173' : window.location.origin)} />
       </Helmet>
       <section id="banner-trang-chu" className="hero" style={{ backgroundImage: `url("${hero?.imageUrl || d.profile?.heroUrl || fallbackHero}")` }}>
         <div className="hero-overlay" />

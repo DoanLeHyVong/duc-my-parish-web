@@ -34,6 +34,8 @@ npm run build
 npm run preview
 ```
 
-## Triển khai
+## Triển khai Vercel
 
-Build thư mục `dist`, cấu hình web server fallback mọi route về `index.html`, đặt `VITE_API_URL` về HTTPS API production và cập nhật domain trong `robots.txt`, `sitemap.xml`. Database production phải là MySQL/MariaDB managed hoặc database riêng trên server; XAMPP chỉ dành cho local development.
+Import repository vào Vercel với framework Vite, build command `npm run build` và output directory `dist`. Đặt `VITE_API_URL` thành HTTPS URL của Railway API (kèm `/api/v1`) và `VITE_SITE_URL` thành URL website. `vercel.json` xử lý fallback cho React Router; sitemap và robots được tạo theo `VITE_SITE_URL` trong lúc build.
+
+Database production phải là MySQL/MariaDB managed hoặc database riêng trên server; XAMPP chỉ dành cho local development. React không chứa thông tin database hay Cloudinary secret.
