@@ -34,6 +34,9 @@ export function GenericManagerPage({ resource }: { resource: string }) {
       const raw = form.get(field.key);
       if (field.type === 'checkbox') data[field.key] = raw === 'on';
       else if (field.type === 'number') data[field.key] = Number(raw || 0);
+      else if (field.type === 'datetime-local') {
+        data[field.key] = raw ? new Date(String(raw)).toISOString() : null;
+      }
       else if (resource === 'settings' && field.key === 'value') { try { data.value = JSON.parse(String(raw)); } catch { return toast.error('Giá trị JSON không hợp lệ'); } }
       else if (raw) data[field.key] = raw;
     }
