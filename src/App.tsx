@@ -1,10 +1,11 @@
 import { lazy, Suspense, type ComponentType } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { ProtectedRoute } from './components/admin/ProtectedRoute';
+import { PermissionRoute, ProtectedRoute } from './components/admin/ProtectedRoute';
 import { LoadingState } from './components/common/LoadingState';
 import { AdminLayout } from './layouts/AdminLayout';
 import { PublicLayout } from './layouts/PublicLayout';
 import { HomePage } from './pages/public/HomePage';
+import { PolicyPage } from './pages/public/PolicyPage';
 
 const load = <T extends Record<string, unknown>>(factory: () => Promise<T>, name: keyof T) =>
   lazy(() => factory().then((module) => ({ default: module[name] as ComponentType<any> })));
@@ -26,6 +27,23 @@ const MenuManagerPage = load(() => import('./pages/admin/MenuManagerPage'), 'Men
 const PostEditorPage = load(() => import('./pages/admin/PostEditorPage'), 'PostEditorPage');
 const PostsPage = load(() => import('./pages/admin/PostsPage'), 'PostsPage');
 const ProfilePage = load(() => import('./pages/admin/ProfilePage'), 'ProfilePage');
+const AccessManagementPage = load(() => import('./pages/admin/AccessManagementPage'), 'AccessManagementPage');
+const PolicyManagerPage = load(() => import('./pages/admin/PolicyManagerPage'), 'PolicyManagerPage');
+
+const parishResources = [
+  ['categories', <GenericManagerPage key="categories" resource="categories" />],
+  ['tags', <GenericManagerPage key="tags" resource="tags" />],
+  ['media', <MediaPage key="media" />],
+  ['banners', <GenericManagerPage key="banners" resource="banners" />],
+  ['menus', <MenuManagerPage key="menus" />],
+  ['home-sections', <GenericManagerPage key="home-sections" resource="home-sections" />],
+  ['announcements', <GenericManagerPage key="announcements" resource="announcements" />],
+  ['mass-schedules', <GenericManagerPage key="mass-schedules" resource="mass-schedules" />],
+  ['events', <GenericManagerPage key="events" resource="events" />],
+  ['albums', <GenericManagerPage key="albums" resource="albums" />],
+  ['profile', <ProfilePage key="profile" />],
+  ['settings', <GenericManagerPage key="settings" resource="settings" />],
+] as const;
 
 export default function App() {
   return <Suspense fallback={<LoadingState />}><Routes>
@@ -39,27 +57,23 @@ export default function App() {
       <Route path="thu-vien" element={<LibraryPage />} />
       <Route path="gioi-thieu" element={<AboutPage />} />
       <Route path="lien-he" element={<ContactPage />} />
+      <Route path="quyen-rieng-tu" element={<PolicyPage slug="privacy-policy" />} />
+      <Route path="dieu-khoan-su-dung" element={<PolicyPage slug="terms-of-use" />} />
+      <Route path="ho-tro" element={<PolicyPage slug="support" />} />
+      <Route path="yeu-cau-du-lieu" element={<PolicyPage slug="data-request" />} />
     </Route>
     <Route path="/admin/login" element={<LoginPage />} />
     <Route element={<ProtectedRoute />}>
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<DashboardPage />} />
-        <Route path="posts" element={<PostsPage />} />
-        <Route path="posts/new" element={<PostEditorPage />} />
-        <Route path="posts/:id/edit" element={<PostEditorPage />} />
-        <Route path="categories" element={<GenericManagerPage resource="categories" />} />
-        <Route path="tags" element={<GenericManagerPage resource="tags" />} />
-        <Route path="media" element={<MediaPage />} />
-        <Route path="banners" element={<GenericManagerPage resource="banners" />} />
-        <Route path="menus" element={<MenuManagerPage />} />
-        <Route path="home-sections" element={<GenericManagerPage resource="home-sections" />} />
-        <Route path="announcements" element={<GenericManagerPage resource="announcements" />} />
-        <Route path="mass-schedules" element={<GenericManagerPage resource="mass-schedules" />} />
-        <Route path="events" element={<GenericManagerPage resource="events" />} />
-        <Route path="albums" element={<GenericManagerPage resource="albums" />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="settings" element={<GenericManagerPage resource="settings" />} />
-        <Route path="audit-logs" element={<GenericManagerPage resource="audit-logs" />} />
+        <Route element={<PermissionRoute permission="parish.manage" />}>
+          <Route path="posts" element={<PostsPage />} />
+          <Route path="posts/new" element={<PostEditorPage />} />
+          <Route path="posts/:id/edit" element={<PostEditorPage />} />
+          {parishResources.map(([path, element]) => <Route key={path} path={path} element={element} />)}
+        </Route>
+        <Route element={<PermissionRoute permission="policies.manage" />}><Route path="policies" element={<PolicyManagerPage />} /></Route>
+        <Route element={<PermissionRoute permission="security.manage" />}><Route path="access" element={<AccessManagementPage />} /></Route>
       </Route>
     </Route>
     <Route path="/404" element={<NotFoundPage />} />

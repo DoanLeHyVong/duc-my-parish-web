@@ -446,6 +446,38 @@ td svg { width: 16px; }
 .menu-manager button { border: 0; background: transparent; color: var(--ocean); padding: 8px; }
 .menu-manager button svg { width: 16px; }
 .admin-modal select { width: 100%; border: 1px solid #dce1e4; padding: 11px; margin-top: 7px; }
+.role-summary { display: flex; gap: 18px; align-items: center; padding: 24px; }
+.role-summary > svg { width: 36px; height: 36px; color: var(--ocean); }
+.role-summary h2 { margin: 0 0 6px; color: var(--navy); }
+.role-summary p, .role-summary small { margin: 0; color: var(--muted); }
+.access-grid { display: grid; gap: 16px; }
+.access-user { padding: 22px; display: grid; grid-template-columns: minmax(220px, .6fr) 1fr; gap: 24px; }
+.access-user > div:first-child strong, .access-user > div:first-child small { display: block; }
+.access-user > div:first-child small { color: var(--muted); margin-top: 7px; }
+.role-options { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 10px; }
+.role-options label { display: flex; align-items: start; gap: 10px; border: 1px solid #dde3e7; padding: 12px; }
+.role-options b, .role-options small { display: block; }
+.role-options small { color: var(--muted); margin-top: 4px; }
+.policy-bootstrap { padding: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
+.policy-admin-grid { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+.policy-admin-grid > aside { padding: 8px; }
+.policy-admin-grid > aside button { width: 100%; border: 0; border-bottom: 1px solid #e7eaec; background: transparent; padding: 14px; text-align: left; }
+.policy-admin-grid > aside button.active { background: var(--light-blue); color: var(--navy); }
+.policy-admin-grid > aside b, .policy-admin-grid > aside small { display: block; }
+.policy-admin-grid > aside small { margin-top: 5px; color: var(--muted); }
+.policy-editor, .policy-history { padding: 24px; margin-bottom: 20px; }
+.policy-editor label { display: block; font-weight: 600; margin-bottom: 16px; }
+.policy-editor label input { display: block; width: 100%; margin-top: 7px; border: 1px solid #dce1e4; padding: 11px; }
+.policy-editor .tiptap { margin-bottom: 16px; }
+.policy-history > div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid #e7eaec; }
+.policy-history b, .policy-history small { display: block; }
+.policy-history small { color: var(--muted); margin-top: 5px; }
+.policy-public { max-width: 900px; }
+.policy-public header { border-bottom: 1px solid var(--border); margin-bottom: 34px; }
+.policy-public header h1 { color: var(--navy); font-size: clamp(38px, 6vw, 64px); margin: 12px 0; }
+.policy-public header p { color: var(--muted); }
+.policy-public article { font-size: 16px; line-height: 1.85; }
+.policy-public article h2 { color: var(--navy); margin-top: 38px; }
 
 /* Login */
 .login-page { min-height: 100vh; display: grid; grid-template-columns: 1.1fr .9fr; }
@@ -517,6 +549,7 @@ td svg { width: 16px; }
   .editor-grid { grid-template-columns: 1fr; }
   .media-grid { grid-template-columns: repeat(3, 1fr); }
   .placement-guide { grid-template-columns: 1fr; }
+  .access-user, .policy-admin-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {
@@ -562,4 +595,5 @@ td svg { width: 16px; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
   .media-grid { grid-template-columns: 1fr 1fr; }
   .profile-fields { grid-template-columns: 1fr; }
+  .role-options { grid-template-columns: 1fr; }
 }

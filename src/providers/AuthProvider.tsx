@@ -1,29 +1,39 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api, setAccessToken } from '../apis/client';
-import { AuthContext, type Admin, type AuthValue } from './auth-context';
+import { AuthContext, type Admin, type AuthValue, type User } from './auth-context';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [ready, setReady] = useState(false);
+
+  const acceptSession = (data: { accessToken: string; user: User; admin: Admin }) => {
+    setAccessToken(data.accessToken);
+    setUser(data.user);
+    setAdmin(data.admin);
+  };
+
   useEffect(() => {
-    api.post('/auth/refresh').then((r) => {
-      setAccessToken(r.data.data.accessToken);
-      setAdmin(r.data.data.admin);
-    }).catch(() => setAccessToken(null)).finally(() => setReady(true));
+    api.post('/auth/refresh').then((response) => acceptSession(response.data.data))
+      .catch(() => setAccessToken(null)).finally(() => setReady(true));
   }, []);
+
   const value = useMemo<AuthValue>(() => ({
+    user,
     admin,
     ready,
+    can: (permission) => user?.permissions.includes(permission) ?? false,
+    hasRole: (role) => user?.roles.includes(role) ?? false,
     async login(username, password) {
       const response = await api.post('/auth/login', { username, password });
-      setAccessToken(response.data.data.accessToken);
-      setAdmin(response.data.data.admin);
+      acceptSession(response.data.data);
     },
     async logout() {
       await api.post('/auth/logout').catch(() => undefined);
       setAccessToken(null);
+      setUser(null);
       setAdmin(null);
     },
-  }), [admin, ready]);
+  }), [user, admin, ready]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
