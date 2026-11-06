@@ -47,6 +47,10 @@ const parishResources = [
 
 export default function App() {
   return <Suspense fallback={<LoadingState />}><Routes>
+    <Route path="/privacy.html" element={<Navigate to="/quyen-rieng-tu" replace />} />
+    <Route path="/terms.html" element={<Navigate to="/dieu-khoan-su-dung" replace />} />
+    <Route path="/support.html" element={<Navigate to="/ho-tro" replace />} />
+    <Route path="/data-request.html" element={<Navigate to="/yeu-cau-du-lieu" replace />} />
     <Route element={<PublicLayout />}>
       <Route index element={<HomePage />} />
       <Route path="bai-viet/:slug" element={<ArticlePage />} />

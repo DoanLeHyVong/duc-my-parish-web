@@ -1,4 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/privacy.html", "destination": "/quyen-rieng-tu", "permanent": true },
+    { "source": "/terms.html", "destination": "/dieu-khoan-su-dung", "permanent": true },
+    { "source": "/support.html", "destination": "/ho-tro", "permanent": true },
+    { "source": "/data-request.html", "destination": "/yeu-cau-du-lieu", "permanent": true }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
