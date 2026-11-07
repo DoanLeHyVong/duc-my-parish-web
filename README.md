@@ -1,5 +1,25 @@
 # Giáo xứ Đức Mỹ — React website
 
+## Chạy cùng unified API trên Windows
+
+Khởi động `duc-my-parish-api` tại port `5000` trước. Trong terminal thứ hai:
+
+```powershell
+Set-Location D:\AppGLV\duc-my-parish-web
+npm.cmd install
+npm.cmd run dev
+```
+
+Vite chạy tại `http://localhost:5173` và proxy `/api` sang `http://127.0.0.1:5000`. Local config trong `.env.example` dùng `VITE_API_URL=/api/v1`; production có thể dùng URL HTTPS tuyệt đối của API. Web không chứa credential MySQL.
+
+Xác minh Web và proxy sau khi cả hai process đã chạy:
+
+```powershell
+Invoke-WebRequest http://localhost:5173/
+Invoke-WebRequest http://localhost:5173/api/v1/health
+Invoke-WebRequest http://localhost:5173/api/v1/ready
+```
+
 Website công khai và trang quản trị dùng React, TypeScript, Vite, Tailwind CSS, TanStack Query và TipTap.
 
 ## Chạy local
