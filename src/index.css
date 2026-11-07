@@ -458,6 +458,13 @@ td svg { width: 16px; }
 .role-options label { display: flex; align-items: start; gap: 10px; border: 1px solid #dde3e7; padding: 12px; }
 .role-options b, .role-options small { display: block; }
 .role-options small { color: var(--muted); margin-top: 4px; }
+.role-options label.role-immutable { background: #f4f6f7; color: var(--muted); }
+.access-create-form .form-help { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.access-create-form .form-error { padding: 11px 13px; color: #9f1c13; background: #fef0ed; border-left: 3px solid #b42318; font-size: 12px; }
+.access-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.field-help { display: block; margin-top: 6px; color: var(--muted); font-weight: 400; line-height: 1.5; }
+.access-role-fieldset { margin: 20px 0 0; padding: 0; border: 0; }
+.access-role-fieldset legend { margin-bottom: 10px; color: #4c5660; font-size: 13px; font-weight: 600; }
 .policy-bootstrap { padding: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
 .policy-admin-grid { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
 .policy-admin-grid > aside { padding: 8px; }
@@ -549,7 +556,7 @@ td svg { width: 16px; }
   .editor-grid { grid-template-columns: 1fr; }
   .media-grid { grid-template-columns: repeat(3, 1fr); }
   .placement-guide { grid-template-columns: 1fr; }
-  .access-user, .policy-admin-grid { grid-template-columns: 1fr; }
+  .access-user, .policy-admin-grid, .access-form-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {
