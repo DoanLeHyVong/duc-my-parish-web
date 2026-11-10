@@ -1,0 +1,56 @@
+name: Parish Web production deploy
+
+on:
+  workflow_run:
+    workflows: [Parish Web CI]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: parish-web-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success' && vars.PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+        env:
+          VITE_API_URL: https://api.giaoxuducmy.org/api/v1
+          VITE_SITE_URL: https://giaoxuducmy.org
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: |
+            VITE_API_URL=https://api.giaoxuducmy.org/api/v1
+            VITE_SITE_URL=https://giaoxuducmy.org
+          tags: ghcr.io/${{ github.repository_owner }}/duc-my-parish-web:production-${{ github.event.workflow_run.head_sha }}
+      - uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd "${{ vars.PRODUCTION_DEPLOY_PATH }}"
+            export WEB_IMAGE="ghcr.io/${{ github.repository_owner }}/duc-my-parish-web:production-${{ github.event.workflow_run.head_sha }}"
+            ./scripts/deploy.sh .env.production
+            API_URL=https://api.giaoxuducmy.org WEB_URL=https://giaoxuducmy.org ./scripts/smoke.sh
