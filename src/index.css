@@ -608,7 +608,11 @@ td svg { width: 16px; }
 /* Modern admin experience */
 .admin-shell { --admin-border: #dce3e8; background: #f5f7fa; grid-template-columns: 280px 1fr; color: #172b3a; }
 .admin-shell > aside { width: 280px; box-shadow: 8px 0 30px #061a2e12; }
-.admin-shell aside nav { padding: 14px 12px 22px; }
+.admin-shell aside nav { padding: 14px 12px 22px; scrollbar-width: thin; scrollbar-color: #648099 transparent; }
+.admin-shell aside nav::-webkit-scrollbar { width: 6px; }
+.admin-shell aside nav::-webkit-scrollbar-track { background: transparent; }
+.admin-shell aside nav::-webkit-scrollbar-thumb { border-radius: 999px; background: #648099; }
+.admin-shell aside nav::-webkit-scrollbar-thumb:hover { background: #829aaf; }
 .admin-nav-group { margin: 0 0 18px; }
 .admin-nav-group h2 { margin: 0 14px 7px; color: #91a7b8; font: 700 10px/1.4 var(--font-body); letter-spacing: .11em; text-transform: uppercase; }
 .admin-shell aside nav a { border-radius: 10px; color: #d1dbe3; }
