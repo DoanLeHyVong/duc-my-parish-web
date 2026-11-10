@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: parish-web-staging-deploy
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -50,7 +50,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -eu
             cd "${{ vars.STAGING_DEPLOY_PATH }}"
             export WEB_IMAGE="ghcr.io/${{ github.repository_owner }}/duc-my-parish-web:staging-${{ github.event.workflow_run.head_sha }}"
             ./scripts/deploy.sh .env.staging
-            API_URL=https://api.hyvongofficial.online WEB_URL=https://giaoxu.hyvongofficial.online ./scripts/smoke.sh
+            API_URL=https://api.hyvongofficial.online EXPECTED_API_URL=https://api.hyvongofficial.online/api/v1 WEB_URL=https://giaoxu.hyvongofficial.online ./scripts/smoke.sh

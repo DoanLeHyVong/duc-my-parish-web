@@ -50,7 +50,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -eu
             cd "${{ vars.PRODUCTION_DEPLOY_PATH }}"
             export WEB_IMAGE="ghcr.io/${{ github.repository_owner }}/duc-my-parish-web:production-${{ github.event.workflow_run.head_sha }}"
             ./scripts/deploy.sh .env.production
-            API_URL=https://api.giaoxuducmy.org WEB_URL=https://giaoxuducmy.org ./scripts/smoke.sh
+            API_URL=https://api.giaoxuducmy.org EXPECTED_API_URL=https://api.giaoxuducmy.org/api/v1 WEB_URL=https://giaoxuducmy.org ./scripts/smoke.sh
