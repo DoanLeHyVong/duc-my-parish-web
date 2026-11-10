@@ -26,21 +26,21 @@ export function Footer({ profile }: { profile?: ParishProfile | null }) {
         </div>
         <div>
           <h3>Khám phá</h3>
-          <Link to="/gioi-thieu">Giới thiệu</Link>
-          <Link to="/gio-le">Giờ lễ</Link>
-          <Link to="/su-kien">Sự kiện</Link>
-          <Link to="/thu-vien">Thư viện</Link>
+          <Link to="/about">Giới thiệu</Link>
+          <Link to="/mass-schedule">Giờ lễ</Link>
+          <Link to="/events">Sự kiện</Link>
+          <Link to="/gallery">Thư viện</Link>
         </div>
         <div>
           <h3>Thông tin</h3>
-          <Link to="/chuyen-muc/tin-giao-xu">Tin giáo xứ</Link>
-          <Link to="/chuyen-muc/thong-bao">Thông báo</Link>
-          <Link to="/chuyen-muc/loi-chua-hang-ngay">Lời Chúa</Link>
-          <Link to="/lien-he">Liên hệ</Link>
-          <Link to="/quyen-rieng-tu">Quyền riêng tư</Link>
-          <Link to="/dieu-khoan-su-dung">Điều khoản sử dụng</Link>
-          <Link to="/ho-tro">Hỗ trợ</Link>
-          <Link to="/yeu-cau-du-lieu">Yêu cầu dữ liệu</Link>
+          <Link to="/categories/parish-news">Tin giáo xứ</Link>
+          <Link to="/categories/announcements">Thông báo</Link>
+          <Link to="/categories/daily-word">Lời Chúa</Link>
+          <Link to="/contact">Liên hệ</Link>
+          <Link to="/privacy">Quyền riêng tư</Link>
+          <Link to="/terms">Điều khoản sử dụng</Link>
+          <Link to="/support">Hỗ trợ</Link>
+          <Link to="/data-request">Yêu cầu dữ liệu</Link>
         </div>
         <div>
           <h3>Liên hệ</h3>

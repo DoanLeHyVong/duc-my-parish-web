@@ -11,6 +11,14 @@ import { SectionHeading } from '../../components/public/SectionHeading';
 import type { Event, MassSchedule, Post } from '../../types';
 
 const fallback = 'https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1600&q=85';
+const categoryAliases: Record<string, string> = {
+  'parish-news': 'tin-giao-xu',
+  announcements: 'thong-bao',
+  'daily-word': 'loi-chua-hang-ngay',
+  'diocese-news': 'tin-giao-phan',
+  'bible-study': 'hoc-hoi-kinh-thanh',
+  catechism: 'giao-ly',
+};
 
 export function ArticlePage() {
   const { slug = '' } = useParams();
@@ -24,7 +32,8 @@ export function ArticlePage() {
 
 export function CategoryPage() {
   const { slug = '' } = useParams();
-  const q = useQuery({ queryKey: ['category', slug], queryFn: () => publicApi.category(slug) });
+  const cmsSlug = Object.prototype.hasOwnProperty.call(categoryAliases, slug) ? categoryAliases[slug]! : slug;
+  const q = useQuery({ queryKey: ['category', cmsSlug], queryFn: () => publicApi.category(cmsSlug) });
   if (q.isLoading) return <LoadingState />;
   if (!q.data) return <ErrorState retry={() => q.refetch()} />;
   return <><PageHero title={q.data.category.name} eyebrow="CHUYÊN MỤC" /><Listing posts={q.data.posts} /></>;

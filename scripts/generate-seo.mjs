@@ -15,7 +15,24 @@ if (!siteUrl) {
   process.exit(0);
 }
 
-const paths = ['/', '/gioi-thieu', '/gio-le', '/su-kien', '/thu-vien', '/lien-he'];
+const paths = [
+  '/',
+  '/about',
+  '/mass-schedule',
+  '/events',
+  '/gallery',
+  '/contact',
+  '/categories/parish-news',
+  '/categories/announcements',
+  '/categories/daily-word',
+  '/categories/diocese-news',
+  '/categories/bible-study',
+  '/categories/catechism',
+  '/privacy',
+  '/terms',
+  '/support',
+  '/data-request',
+];
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

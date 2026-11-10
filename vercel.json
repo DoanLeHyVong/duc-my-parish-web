@@ -1,10 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    { "source": "/privacy.html", "destination": "/quyen-rieng-tu", "permanent": true },
-    { "source": "/terms.html", "destination": "/dieu-khoan-su-dung", "permanent": true },
-    { "source": "/support.html", "destination": "/ho-tro", "permanent": true },
-    { "source": "/data-request.html", "destination": "/yeu-cau-du-lieu", "permanent": true }
+    { "source": "/gioi-thieu", "destination": "/about", "permanent": true },
+    { "source": "/gio-le", "destination": "/mass-schedule", "permanent": true },
+    { "source": "/su-kien", "destination": "/events", "permanent": true },
+    { "source": "/thu-vien", "destination": "/gallery", "permanent": true },
+    { "source": "/lien-he", "destination": "/contact", "permanent": true },
+    { "source": "/tim-kiem", "destination": "/search", "permanent": true },
+    { "source": "/bai-viet/:slug", "destination": "/posts/:slug", "permanent": true },
+    { "source": "/chuyen-muc/:slug", "destination": "/categories/:slug", "permanent": true },
+    { "source": "/quyen-rieng-tu", "destination": "/privacy", "permanent": true },
+    { "source": "/dieu-khoan-su-dung", "destination": "/terms", "permanent": true },
+    { "source": "/ho-tro", "destination": "/support", "permanent": true },
+    { "source": "/yeu-cau-du-lieu", "destination": "/data-request", "permanent": true },
+    { "source": "/privacy.html", "destination": "/privacy", "permanent": true },
+    { "source": "/terms.html", "destination": "/terms", "permanent": true },
+    { "source": "/support.html", "destination": "/support", "permanent": true },
+    { "source": "/data-request.html", "destination": "/data-request", "permanent": true }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

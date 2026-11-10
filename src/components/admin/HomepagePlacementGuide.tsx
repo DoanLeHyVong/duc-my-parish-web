@@ -22,7 +22,7 @@ const guides: Record<string, { title: string; description: string; href: string;
   tags: {
     title: 'Thẻ dùng để phân loại bài',
     description: 'Tag hỗ trợ tìm kiếm và phân loại; không chiếm một khối riêng trên trang chủ.',
-    href: '/tim-kiem',
+    href: '/search',
     icon: Search,
   },
   banners: {

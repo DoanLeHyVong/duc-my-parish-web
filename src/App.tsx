@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ComponentType } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { PermissionRoute, ProtectedRoute } from './components/admin/ProtectedRoute';
 import { LoadingState } from './components/common/LoadingState';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -45,26 +45,45 @@ const parishResources = [
   ['settings', <GenericManagerPage key="settings" resource="settings" />],
 ] as const;
 
+function LegacyPublicRedirect({ to, dynamic = false }: { to: string; dynamic?: boolean }) {
+  const { slug } = useParams();
+  const { search, hash } = useLocation();
+  const destination = dynamic && slug ? `${to}/${encodeURIComponent(slug)}` : to;
+  return <Navigate to={`${destination}${search}${hash}`} replace />;
+}
+
 export default function App() {
   return <Suspense fallback={<LoadingState />}><Routes>
-    <Route path="/privacy.html" element={<Navigate to="/quyen-rieng-tu" replace />} />
-    <Route path="/terms.html" element={<Navigate to="/dieu-khoan-su-dung" replace />} />
-    <Route path="/support.html" element={<Navigate to="/ho-tro" replace />} />
-    <Route path="/data-request.html" element={<Navigate to="/yeu-cau-du-lieu" replace />} />
+    <Route path="/privacy.html" element={<LegacyPublicRedirect to="/privacy" />} />
+    <Route path="/terms.html" element={<LegacyPublicRedirect to="/terms" />} />
+    <Route path="/support.html" element={<LegacyPublicRedirect to="/support" />} />
+    <Route path="/data-request.html" element={<LegacyPublicRedirect to="/data-request" />} />
+    <Route path="/gioi-thieu" element={<LegacyPublicRedirect to="/about" />} />
+    <Route path="/gio-le" element={<LegacyPublicRedirect to="/mass-schedule" />} />
+    <Route path="/su-kien" element={<LegacyPublicRedirect to="/events" />} />
+    <Route path="/thu-vien" element={<LegacyPublicRedirect to="/gallery" />} />
+    <Route path="/lien-he" element={<LegacyPublicRedirect to="/contact" />} />
+    <Route path="/tim-kiem" element={<LegacyPublicRedirect to="/search" />} />
+    <Route path="/quyen-rieng-tu" element={<LegacyPublicRedirect to="/privacy" />} />
+    <Route path="/dieu-khoan-su-dung" element={<LegacyPublicRedirect to="/terms" />} />
+    <Route path="/ho-tro" element={<LegacyPublicRedirect to="/support" />} />
+    <Route path="/yeu-cau-du-lieu" element={<LegacyPublicRedirect to="/data-request" />} />
+    <Route path="/bai-viet/:slug" element={<LegacyPublicRedirect to="/posts" dynamic />} />
+    <Route path="/chuyen-muc/:slug" element={<LegacyPublicRedirect to="/categories" dynamic />} />
     <Route element={<PublicLayout />}>
       <Route index element={<HomePage />} />
-      <Route path="bai-viet/:slug" element={<ArticlePage />} />
-      <Route path="chuyen-muc/:slug" element={<CategoryPage />} />
-      <Route path="tim-kiem" element={<SearchPage />} />
-      <Route path="gio-le" element={<MassPage />} />
-      <Route path="su-kien" element={<EventsPage />} />
-      <Route path="thu-vien" element={<LibraryPage />} />
-      <Route path="gioi-thieu" element={<AboutPage />} />
-      <Route path="lien-he" element={<ContactPage />} />
-      <Route path="quyen-rieng-tu" element={<PolicyPage slug="privacy-policy" />} />
-      <Route path="dieu-khoan-su-dung" element={<PolicyPage slug="terms-of-use" />} />
-      <Route path="ho-tro" element={<PolicyPage slug="support" />} />
-      <Route path="yeu-cau-du-lieu" element={<PolicyPage slug="data-request" />} />
+      <Route path="posts/:slug" element={<ArticlePage />} />
+      <Route path="categories/:slug" element={<CategoryPage />} />
+      <Route path="search" element={<SearchPage />} />
+      <Route path="mass-schedule" element={<MassPage />} />
+      <Route path="events" element={<EventsPage />} />
+      <Route path="gallery" element={<LibraryPage />} />
+      <Route path="about" element={<AboutPage />} />
+      <Route path="contact" element={<ContactPage />} />
+      <Route path="privacy" element={<PolicyPage slug="privacy-policy" />} />
+      <Route path="terms" element={<PolicyPage slug="terms-of-use" />} />
+      <Route path="support" element={<PolicyPage slug="support" />} />
+      <Route path="data-request" element={<PolicyPage slug="data-request" />} />
     </Route>
     <Route path="/admin/login" element={<LoginPage />} />
     <Route element={<ProtectedRoute />}>

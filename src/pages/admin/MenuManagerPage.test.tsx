@@ -36,7 +36,7 @@ beforeEach(() => {
                 id: 9,
                 menuId: 1,
                 label: 'Giới thiệu',
-                url: '/gioi-thieu',
+                url: '/about',
                 linkType: 'INTERNAL',
                 target: '_self',
                 parentId: null,
