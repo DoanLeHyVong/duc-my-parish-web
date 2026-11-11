@@ -1,12 +1,7 @@
-# Parish Web image and CI/CD
+# Parish Web single-VPS delivery
 
-The Web image is built with Vite and served by Nginx. `nginx.conf` provides the React history fallback required by BrowserRouter and immutable caching for hashed static assets. The image contains no API or database secret.
+`staging` runs CI only. After the owner enables both repository-level gates (`PRODUCTION_DEPLOY_ENABLED=true`, `PRODUCTION_READINESS_CONFIRMED=true`) and configures the production Environment, successful `main` CI builds the Web image in GitHub Actions and updates the one Compose project on the authorized VPS. Keep gates closed until the shared API deployment guide's readiness checks pass.
 
-GitHub Actions runs `npm ci`, lint, tests, production build, dependency audit, and secret scanning on pull requests and `main`/`staging`. The staging workflow publishes a GHCR image tagged with the commit SHA and asks the authorized VPS deployment script to update only the staging Compose project. The production workflow is disabled unless the protected production Environment sets `PRODUCTION_DEPLOY_ENABLED=true` and the required reviewer approves the job.
+Vite builds use `VITE_API_URL=https://api.hyvongofficial.online/api/v1` and `VITE_SITE_URL=https://giaoxu.hyvongofficial.online` by default. Repository variables `PUBLIC_API_URL` and `PUBLIC_WEB_URL` permit a later owner-approved domain switch. The image serves static files with Nginx and contains no DB or JWT secrets. `PRODUCTION_DEPLOY_PATH` points to the API-owned Compose directory. Both repos need matching SSH secrets and separately verified release gates.
 
-Required Web build variables:
-
-- Staging: `VITE_API_URL=https://api.hyvongofficial.online/api/v1`, `VITE_SITE_URL=https://giaoxu.hyvongofficial.online`.
-- Production: `VITE_API_URL=https://api.giaoxuducmy.org/api/v1`, `VITE_SITE_URL=https://giaoxuducmy.org`.
-
-If the VPS deployment or Cloudflare check fails, leave the previous image tag available and use the API repository rollback script. Do not treat a Web image rollback as a database rollback.
+If health or public smoke checks fail, use the API repository's rollback script with previous immutable API and Web image tags. Application rollback does not undo Prisma migrations. See the API deployment guide for backup, tunnel, restore and operations requirements.
