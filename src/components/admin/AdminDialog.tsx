@@ -135,8 +135,10 @@ export function AdminDialog({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = previousOverflow;
-      if (opener?.isConnected) {
-        queueMicrotask(() => opener.focus());
+      if (opener) {
+        queueMicrotask(() => {
+          if (!panelRef.current?.isConnected && opener.isConnected) opener.focus();
+        });
       }
     };
   }, [initialFocusRef, open, returnFocusRef]);

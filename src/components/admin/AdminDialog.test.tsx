@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useRef, useState } from 'react';
+import { StrictMode, useRef, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AdminDialog } from './AdminDialog';
 
@@ -9,9 +9,11 @@ afterEach(cleanup);
 function DialogHarness({
   busy = false,
   onClose = vi.fn(),
+  autoFocus = true,
 }: {
   busy?: boolean;
   onClose?: () => void;
+  autoFocus?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const openerRef = useRef<HTMLButtonElement>(null);
@@ -31,7 +33,7 @@ function DialogHarness({
         returnFocusRef={openerRef}
         onClose={close}
       >
-        <input aria-label="Trường đầu tiên" autoFocus />
+        <input aria-label="Trường đầu tiên" autoFocus={autoFocus} />
         <button>Hành động cuối</button>
         <span data-testid="backdrop-child">Nội dung</span>
       </AdminDialog>
@@ -40,6 +42,25 @@ function DialogHarness({
 }
 
 describe('AdminDialog', () => {
+  it('focuses the first control even without an autofocus attribute', async () => {
+    const user = userEvent.setup();
+    render(<DialogHarness autoFocus={false} />);
+    await user.click(screen.getByRole('button', { name: 'Mở hộp thoại' }));
+    expect(screen.getByRole('textbox', { name: 'Trường đầu tiên' })).toHaveFocus();
+  });
+
+  it('keeps focus inside an open dialog in Strict Mode', async () => {
+    const user = userEvent.setup();
+    render(
+      <StrictMode>
+        <DialogHarness autoFocus={false} />
+      </StrictMode>,
+    );
+    await user.click(screen.getByRole('button', { name: 'Mở hộp thoại' }));
+    await Promise.resolve();
+    expect(screen.getByRole('textbox', { name: 'Trường đầu tiên' })).toHaveFocus();
+  });
+
   it('closes from its close button and restores focus to the opener', async () => {
     const user = userEvent.setup();
     render(<DialogHarness />);
