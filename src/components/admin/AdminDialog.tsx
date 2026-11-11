@@ -96,7 +96,7 @@ export function AdminDialog({
         panelRef.current?.querySelector<HTMLElement>(focusableSelector);
       (first ?? panelRef.current)?.focus();
     };
-    const frame = window.requestAnimationFrame(focusInitialControl);
+    focusInitialControl();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -133,7 +133,6 @@ export function AdminDialog({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => {
-      window.cancelAnimationFrame(frame);
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = previousOverflow;
       if (opener?.isConnected) {
