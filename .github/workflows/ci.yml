@@ -2,8 +2,9 @@ name: Parish Web CI
 
 on:
   pull_request:
+    branches: [main]
   push:
-    branches: [main, staging]
+    branches: [main]
 
 concurrency:
   group: parish-web-ci-${{ github.ref }}

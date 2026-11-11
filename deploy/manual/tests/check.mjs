@@ -10,8 +10,10 @@ const shell = process.platform === 'win32' ? 'C:/Program Files/Git/bin/bash.exe'
 
 test('CI cannot start an automatic deployment or publish an image', () => {
   const workflow = readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
-  assert.match(workflow, /branches: \[main, staging\]/);
+  assert.match(workflow, /branches: \[main\]/);
+  assert.doesNotMatch(workflow, /staging/);
   assert.doesNotMatch(workflow, /workflow_run|ssh-action|scp-action|build-push-action|docker\/login-action/);
+  assert.match(workflow, /if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/);
 });
 
 test('Web release fails closed without a checksum', () => {
