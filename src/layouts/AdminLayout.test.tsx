@@ -133,7 +133,7 @@ describe('AdminLayout', () => {
     expect(document.body).toHaveStyle({ overflow: 'hidden' });
     resizeToDesktop();
     await waitFor(() => expect(opener).toHaveAttribute('aria-expanded', 'false'));
-    expect(document.body).not.toHaveStyle({ overflow: 'hidden' });
+    await waitFor(() => expect(document.body).not.toHaveStyle({ overflow: 'hidden' }));
     expect(document.querySelector('#admin-navigation')).not.toHaveAttribute('aria-hidden');
   });
 });

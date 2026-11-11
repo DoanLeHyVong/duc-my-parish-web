@@ -23,9 +23,24 @@ jobs:
       - run: npm run test
       - run: npm run build
         env:
-          VITE_API_URL: https://api.hyvongofficial.online/api/v1
-          VITE_SITE_URL: https://giaoxu.hyvongofficial.online
+          VITE_API_URL: ${{ vars.PUBLIC_API_URL || 'https://api.hyvongofficial.online' }}/api/v1
+          VITE_SITE_URL: ${{ vars.PUBLIC_WEB_URL || 'https://giaoxu.hyvongofficial.online' }}
+      - run: node --test deploy/manual/tests/check.mjs
       - run: npm audit --omit=dev --audit-level=high
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Package manual static release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          tar -czf "ducmy-web-${GITHUB_SHA}.tar.gz" -C dist .
+          sha256sum "ducmy-web-${GITHUB_SHA}.tar.gz" > "ducmy-web-${GITHUB_SHA}.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          name: ducmy-web-${{ github.sha }}
+          path: |
+            ducmy-web-${{ github.sha }}.tar.gz
+            ducmy-web-${{ github.sha }}.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 14

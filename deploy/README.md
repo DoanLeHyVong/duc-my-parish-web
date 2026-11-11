@@ -1,3 +1,7 @@
+# DEPRECATED: Docker/Compose reference only
+
+The owner-approved runtime is native Nginx with manual SSH releases. No workflow invokes the historical Compose procedures below. Use `deploy/manual/README.md` and the workspace `ducmy-manual-vps-deployment-guide.md` instead.
+
 # Parish Web single-VPS delivery
 
 `staging` runs CI only. After the owner enables both repository-level gates (`PRODUCTION_DEPLOY_ENABLED=true`, `PRODUCTION_READINESS_CONFIRMED=true`) and configures the production Environment, successful `main` CI builds the Web image in GitHub Actions and updates the one Compose project on the authorized VPS. Keep gates closed until the shared API deployment guide's readiness checks pass.

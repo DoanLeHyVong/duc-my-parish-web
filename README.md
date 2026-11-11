@@ -1,5 +1,7 @@
 # Giáo xứ Đức Mỹ — React website
 
+> Current deployment: `staging` and `main` run CI only; reviewed `main` static artifacts are deployed manually to native Nginx via `deploy/manual/`. No Docker runtime or automatic VPS deployment is active.
+
 ## Chạy cùng unified API trên Windows
 
 Khởi động `duc-my-parish-api` tại port `5000` trước. Trong terminal thứ hai:
