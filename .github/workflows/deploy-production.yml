@@ -1,0 +1,75 @@
+name: Parish Web production delivery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: parish-web-production
+  cancel-in-progress: false
+
+jobs:
+  verify-and-deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_API_URL: https://api.hyvongofficial.online/api/v1
+          VITE_SITE_URL: https://giaoxu.hyvongofficial.online
+      - run: node --test deploy/manual/tests/check.mjs
+      - run: python3 -B -m unittest discover -s deploy/manual/tests -p 'test_*.py'
+      - run: npm audit --omit=dev --audit-level=high
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check static release
+        run: test -s dist/index.html && test -s dist/robots.txt && test -s dist/sitemap.xml
+      - name: Package and verify release
+        run: |
+          set -euo pipefail
+          tar -czf "ducmy-web-${GITHUB_SHA}.tar.gz" -C dist .
+          sha256sum "ducmy-web-${GITHUB_SHA}.tar.gz" > "ducmy-web-${GITHUB_SHA}.tar.gz.sha256"
+          python3 deploy/manual/validate-archive.py "ducmy-web-${GITHUB_SHA}.tar.gz" "$(mktemp -d)"
+      - name: Check SSH configuration before network use
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for variable in VPS_HOST VPS_USER VPS_SSH_KEY VPS_KNOWN_HOSTS; do
+            test -n "${!variable}" || { echo "Missing $variable" >&2; exit 1; }
+          done
+          [[ "$VPS_USER" == deploy && "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || { echo 'Invalid VPS target.' >&2; exit 1; }
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_KEY" > "$HOME/.ssh/id_deploy"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_deploy" "$HOME/.ssh/known_hosts"
+      - name: Upload and activate verified Web release
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          ssh_opts=(-i "$HOME/.ssh/id_deploy" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts")
+          target="${VPS_USER}@${VPS_HOST}"
+          ssh "${ssh_opts[@]}" "$target" "mkdir -p /opt/ducmy/web/incoming/${GITHUB_SHA}"
+          scp "${ssh_opts[@]}" "ducmy-web-${GITHUB_SHA}.tar.gz" "ducmy-web-${GITHUB_SHA}.tar.gz.sha256" deploy/manual/web-release.sh deploy/manual/validate-archive.py deploy/manual/verify-release-tree.py "$target:/opt/ducmy/web/incoming/${GITHUB_SHA}/"
+          ssh "${ssh_opts[@]}" "$target" "bash /opt/ducmy/web/incoming/${GITHUB_SHA}/web-release.sh /opt/ducmy/web/incoming/${GITHUB_SHA}/ducmy-web-${GITHUB_SHA}.tar.gz /opt/ducmy/web/incoming/${GITHUB_SHA}/ducmy-web-${GITHUB_SHA}.tar.gz.sha256"

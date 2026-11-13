@@ -35,3 +35,15 @@ test('Nginx serves a dynamic sitemap and marks Admin as noindex', () => {
   assert.match(nginx, /location = \/sitemap\.xml[\s\S]*?proxy_pass http:\/\/127\.0\.0\.1:5000\/api\/v1\/public\/sitemap\.xml/);
   assert.match(nginx, /location \/admin[\s\S]*?X-Robots-Tag "noindex, nofollow"/);
 });
+
+test('production delivery checks secrets and release content before succeeding', () => {
+  const workflow = readFileSync(path.join(root, '.github/workflows/deploy-production.yml'), 'utf8');
+  const release = readFileSync(path.join(root, 'deploy/manual/web-release.sh'), 'utf8');
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /contents: read/);
+  assert.ok(workflow.indexOf('Missing $variable') < workflow.indexOf('scp "${ssh_opts'));
+  assert.match(workflow, /StrictHostKeyChecking=yes/);
+  assert.match(release, /verify-release-tree\.py/);
+  assert.match(release, /cmp -s "\$TARGET\/index\.html"/);
+  assert.match(release, /previous release restored if available/i);
+});

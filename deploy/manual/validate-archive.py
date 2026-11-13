@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
-"""Reject tar members and links that can escape an isolated release directory."""
+"""Extract only ordinary, unique relative files into an isolated release directory."""
 import posixpath
 import sys
 import tarfile
 
-with tarfile.open(sys.argv[1], "r:gz") as archive:
+seen = set()
+with tarfile.open(sys.argv[1], 'r:gz') as archive:
     for member in archive:
         name = posixpath.normpath(member.name)
-        if member.name.startswith("/") or name == ".." or name.startswith("../"):
-            raise SystemExit("Unsafe archive path")
-        if member.issym() or member.islnk():
-            target = posixpath.normpath(posixpath.join(posixpath.dirname(name), member.linkname) if member.issym() else member.linkname)
-            if member.linkname.startswith("/") or target == ".." or target.startswith("../"):
-                raise SystemExit("Unsafe archive link")
-        if not (member.isfile() or member.isdir() or member.issym() or member.islnk()):
-            raise SystemExit("Unsupported archive member")
-    archive.extractall(sys.argv[2], filter="data")
+        if name == '.' and member.isdir():
+            continue
+        if (member.name.startswith('/') or name in ('', '..') or name.startswith('../')
+                or name in seen or not (member.isfile() or member.isdir())):
+            raise SystemExit('Unsafe archive member')
+        seen.add(name)
+    archive.extractall(sys.argv[2], filter='data')
