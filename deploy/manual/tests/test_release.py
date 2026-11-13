@@ -39,13 +39,14 @@ class ArchiveTests(unittest.TestCase):
             (base / 'incoming').mkdir()
             old = base / 'releases' / ('a' * 40)
             old.mkdir()
-            (old / 'index.html').write_text('old')
+            (old / 'assets').mkdir()
+            (old / 'assets/main.js').write_text('old asset')
+            (old / 'index.html').write_text('<script src="/assets/main.js"></script>old')
             (base / 'current').symlink_to(pathlib.Path('releases') / old.name)
             binary = root / 'bin'
             binary.mkdir()
             for name, body in {
-                'sudo': '#!/bin/sh\nexit 0\n',
-                'curl': '#!/bin/sh\nif [ "${TEST_BAD_SMOKE:-0}" = 1 ]; then printf wrong; else case "$*" in */assets/*) cat "$DUCMY_WEB_BASE/current/assets/main.js";; *) cat "$DUCMY_WEB_BASE/current/index.html";; esac; fi\n',
+                'curl': '#!/bin/sh\nif [ "${TEST_BAD_SMOKE:-0}" = 1 ] || { [ "${TEST_BAD_SMOKE:-0}" = new ] && [ "$(readlink "$DUCMY_WEB_BASE/current")" = "releases/cccccccccccccccccccccccccccccccccccccccc" ]; }; then printf wrong; else case "$*" in */assets/*) cat "$DUCMY_WEB_BASE/current/assets/main.js";; *) cat "$DUCMY_WEB_BASE/current/index.html";; esac; fi\n',
             }.items():
                 path = binary / name
                 path.write_text(body)
@@ -65,16 +66,22 @@ class ArchiveTests(unittest.TestCase):
                 checksum.write_text(f'{digest}  {archive.name}\n')
                 return archive, checksum
 
-            def run(sha, bad=False):
+            def run(sha, bad='0'):
                 archive, checksum = archive_for(sha)
-                return subprocess.run(['bash', str(MANUAL / 'web-release.sh'), str(archive), str(checksum)], env={**env, 'TEST_BAD_SMOKE': '1' if bad else '0'}, capture_output=True, text=True)
+                return subprocess.run(['bash', str(MANUAL / 'web-release.sh'), str(archive), str(checksum)], env={**env, 'TEST_BAD_SMOKE': bad}, capture_output=True, text=True)
 
             first = 'b' * 40
             self.assertEqual(run(first).returncode, 0)
             self.assertEqual((base / 'current').resolve(), base / 'releases' / first)
             self.assertEqual(run(first).returncode, 0, 'same artifact must be retry-safe')
             second = 'c' * 40
-            self.assertNotEqual(run(second, bad=True).returncode, 0)
+            restored = run(second, bad='new')
+            self.assertNotEqual(restored.returncode, 0)
+            self.assertEqual((base / 'current').resolve(), base / 'releases' / first)
+            self.assertIn('Previous Web release restored and verified', restored.stderr)
+            failed = run(second, bad='1')
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertIn('ROLLBACK FAILED', failed.stderr)
             self.assertEqual((base / 'current').resolve(), base / 'releases' / first)
 
 

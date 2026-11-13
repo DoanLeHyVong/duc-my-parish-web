@@ -43,7 +43,12 @@ test('production delivery checks secrets and release content before succeeding',
   assert.match(workflow, /contents: read/);
   assert.ok(workflow.indexOf('Missing $variable') < workflow.indexOf('scp "${ssh_opts'));
   assert.match(workflow, /StrictHostKeyChecking=yes/);
+  assert.match(workflow, /scp[^\n]*deploy\/manual\/web-release\.sh deploy\/manual\/validate-archive\.py deploy\/manual\/verify-release-tree\.py/);
+  assert.match(workflow, /bash \/opt\/ducmy\/web\/incoming\/\$\{GITHUB_SHA\}\/web-release\.sh/);
   assert.match(release, /verify-release-tree\.py/);
   assert.match(release, /cmp -s "\$TARGET\/index\.html"/);
-  assert.match(release, /previous release restored if available/i);
+  assert.doesNotMatch(release, /\bsudo\b/);
+  assert.match(release, /Previous Web release restored and verified/);
+  assert.match(release, /ROLLBACK FAILED/);
+  assert.doesNotMatch(readFileSync(path.join(root, 'deploy/manual/web-rollback.sh'), 'utf8'), /\bsudo\b/);
 });

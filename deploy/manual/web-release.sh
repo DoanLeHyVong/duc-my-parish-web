@@ -23,6 +23,9 @@ if [[ "$(readlink "$BASE/current" || true)" == "releases/$SHA" ]]; then
   [[ -f "$TARGET/.source-archive.sha256" && "$(cat "$TARGET/.source-archive.sha256")" == "$HASH" ]] || { echo 'Active release differs from archive.' >&2; exit 1; }
   python3 "$SCRIPT_DIR/verify-release-tree.py" "$ARCHIVE" "$TARGET"
   curl --fail --silent --show-error http://127.0.0.1:8080/ | cmp -s "$TARGET/index.html" - || { echo 'Active Web does not serve the release index.' >&2; exit 1; }
+  ASSET=$(grep -oE '/assets/[^" ]+\.(js|css)' "$TARGET/index.html" | head -n 1 || true)
+  [[ -n "$ASSET" && -s "$TARGET$ASSET" ]] || { echo 'Active release asset missing.' >&2; exit 1; }
+  curl --fail --silent --show-error "http://127.0.0.1:8080$ASSET" | cmp -s "$TARGET$ASSET" - || { echo 'Active Web does not serve the release asset.' >&2; exit 1; }
   echo "Web release already active: $SHA"; exit 0
 fi
 if [[ -e "$TARGET" ]]; then
@@ -50,15 +53,23 @@ rollback() {
   if [[ -n "$OLD" ]]; then
     ln -sfn "$OLD" "$BASE/current.next"
     mv -Tf "$BASE/current.next" "$BASE/current"
-    sudo systemctl reload nginx || true
-    curl --fail --silent --show-error http://127.0.0.1:8080/ | cmp -s "$BASE/current/index.html" - || echo 'Previous Web smoke also failed.' >&2
+    OLD_ASSET=$(grep -oE '/assets/[^" ]+\.(js|css)' "$BASE/current/index.html" | head -n 1 || true)
+    if [[ "$(readlink "$BASE/current" || true)" == "$OLD" && -n "$OLD_ASSET" && -s "$BASE/current$OLD_ASSET" ]] &&
+       curl --fail --silent --show-error http://127.0.0.1:8080/ | cmp -s "$BASE/current/index.html" - &&
+       curl --fail --silent --show-error "http://127.0.0.1:8080$OLD_ASSET" | cmp -s "$BASE/current$OLD_ASSET" -; then
+      echo 'Previous Web release restored and verified.' >&2
+    else
+      echo 'ROLLBACK FAILED: previous Web release is not verified.' >&2
+    fi
   else
     rm -f "$BASE/current"
+    [[ ! -e "$BASE/current" && ! -L "$BASE/current" ]] || echo 'ROLLBACK FAILED: current link remains.' >&2
+    echo 'No previous Web release existed.' >&2
   fi
-  echo 'Web smoke failed; previous release restored if available.' >&2
+  echo 'Web smoke failed.' >&2
   exit 1
 }
-sudo nginx -t && sudo systemctl reload nginx || rollback
+# Nginx serves files through /opt/ducmy/web/current; a symlink switch needs no reload.
 curl --fail --silent --show-error http://127.0.0.1:8080/ | cmp -s "$TARGET/index.html" - || rollback
 curl --fail --silent --show-error "http://127.0.0.1:8080$ASSET" | cmp -s "$TARGET$ASSET" - || rollback
 echo "Web release active: $SHA"
