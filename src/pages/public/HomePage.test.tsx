@@ -16,7 +16,7 @@ vi.mock('../../apis/public.api', () => ({ publicApi: { home: vi.fn() } }));
 
 afterEach(cleanup);
 
-it('uses canonical English paths for source-controlled home navigation', async () => {
+it('uses configured content without fabricating parish images or messages', async () => {
   const data: HomeData = {
     profile: {
       name: 'Giáo xứ Đức Mỹ',
@@ -47,25 +47,32 @@ it('uses canonical English paths for source-controlled home navigation', async (
 
   await screen.findByRole('heading', { level: 1 });
   const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'));
-  for (const expected of [
-    '/mass-schedule',
-    '/categories/announcements',
-    '/about',
-    '/categories/parish-news',
-    '/categories/daily-word',
-    '/categories/diocese-news',
-    '/categories/bible-study',
-    '/categories/catechism',
-    '/events',
-    '/gallery',
-    '/contact',
-  ]) {
+  for (const expected of ['/mass-schedule', '/categories/announcements', '/contact']) {
     expect(hrefs).toContain(expected);
   }
+  expect(screen.queryByText(/Hãy ở lại trong tình yêu của Thầy/)).not.toBeInTheDocument();
+  expect(document.querySelector('img[src="/hero-duc-my-v2.png"]')).toBeNull();
   expect(hrefs).not.toContain('/search');
   for (const href of hrefs.filter(Boolean)) {
     expect(href).not.toMatch(
       /^\/(?:gioi-thieu|gio-le|su-kien|thu-vien|lien-he|tim-kiem|bai-viet|chuyen-muc)(?:\/|$)/,
     );
   }
+});
+
+it('renders configured sections in API order with their own text and link', async () => {
+  vi.mocked(publicApi.home).mockResolvedValue({
+    profile: { name: 'Giáo xứ thử nghiệm', diocese: 'Giáo phận thử nghiệm', description: 'Giới thiệu', address: 'Địa chỉ' },
+    banners: [], menu: null, posts: [], announcements: [], massSchedules: [], events: [], albums: [],
+    sections: [
+      { id: 2, sectionKey: 'latest-news', title: 'Tin cập nhật', componentType: 'GRID', displayLimit: 2, settings: { eyebrow: 'Mới', ctaText: 'Tất cả tin', ctaUrl: '/categories/parish-news' } },
+      { id: 1, sectionKey: 'about', title: 'Cộng đoàn chúng tôi', componentType: 'FEATURED', displayLimit: 1, settings: { body: 'Nội dung do Admin nhập' } },
+    ],
+  });
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><HelmetProvider><MemoryRouter><HomePage /></MemoryRouter></HelmetProvider></QueryClientProvider>);
+  await screen.findByText('Nội dung do Admin nhập');
+  expect(screen.getByRole('link', { name: /Tất cả tin/ })).toHaveAttribute('href', '/categories/parish-news');
+  const sections = document.querySelectorAll('section');
+  expect([...sections].findIndex((node) => node.textContent?.includes('Tin cập nhật'))).toBeLessThan([...sections].findIndex((node) => node.textContent?.includes('Cộng đoàn chúng tôi')));
 });

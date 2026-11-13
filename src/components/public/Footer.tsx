@@ -1,8 +1,8 @@
 import { Church, Globe2, Mail, MapPin, Phone, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import type { ParishProfile } from '../../types';
+import type { MenuItem, ParishProfile } from '../../types';
 
-export function Footer({ profile }: { profile?: ParishProfile | null }) {
+export function Footer({ profile, menu }: { profile?: ParishProfile | null; menu?: { items: MenuItem[] } | null }) {
   return (
     <footer className="footer">
       <div className="container footer-grid">
@@ -10,26 +10,25 @@ export function Footer({ profile }: { profile?: ParishProfile | null }) {
           <div className="footer-brand">
             <Church />
             <div>
-              <small>GIÁO PHẬN BÀ RỊA</small>
-              <strong>GIÁO XỨ ĐỨC MỸ</strong>
+              <small>{profile?.diocese || 'Giáo phận'}</small>
+              <strong>{profile?.name || 'Giáo xứ'}</strong>
             </div>
           </div>
-          <p>{profile?.description || 'Hiệp nhất trong đức tin — Lan tỏa yêu thương.'}</p>
+          <p>{profile?.footerText || profile?.description}</p>
           <div className="socials">
-            <a href={profile?.facebookUrl || '#'} aria-label="Facebook">
+            {profile?.facebookUrl && <a href={profile.facebookUrl} aria-label="Facebook">
               <Globe2 />
-            </a>
-            <a href={profile?.youtubeUrl || '#'} aria-label="YouTube">
+            </a>}
+            {profile?.youtubeUrl && <a href={profile.youtubeUrl} aria-label="YouTube">
               <Play />
-            </a>
+            </a>}
           </div>
         </div>
         <div>
           <h3>Khám phá</h3>
-          <Link to="/about">Giới thiệu</Link>
-          <Link to="/mass-schedule">Giờ lễ</Link>
-          <Link to="/events">Sự kiện</Link>
-          <Link to="/gallery">Thư viện</Link>
+          {menu?.items?.length ? menu.items.map((item) => item.url?.startsWith('https://')
+            ? <a key={item.id} href={item.url} target={item.target === '_blank' ? '_blank' : undefined} rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}>{item.label}</a>
+            : <Link key={item.id} to={item.url?.startsWith('/') && !item.url.startsWith('//') ? item.url : '/'}>{item.label}</Link>) : <><Link to="/about">Giới thiệu</Link><Link to="/mass-schedule">Giờ lễ</Link><Link to="/events">Sự kiện</Link><Link to="/gallery">Thư viện</Link></>}
         </div>
         <div>
           <h3>Thông tin</h3>
@@ -57,8 +56,7 @@ export function Footer({ profile }: { profile?: ParishProfile | null }) {
       </div>
       <div className="footer-bottom">
         <div className="container">
-          © {new Date().getFullYear()} Giáo xứ Đức Mỹ. Nội dung minh họa có thể chỉnh sửa trong quản
-          trị.
+          {profile?.copyrightText || `© ${new Date().getFullYear()} ${profile?.name || 'Giáo xứ'}`}
         </div>
       </div>
     </footer>

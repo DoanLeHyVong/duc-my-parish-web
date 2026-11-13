@@ -5,6 +5,7 @@ import vercelConfig from '../vercel.json';
 import App from './App';
 
 vi.mock('./layouts/PublicLayout', () => ({ PublicLayout: () => <Outlet /> }));
+vi.mock('./components/common/SiteSeo', () => ({ PageSeo: () => null }));
 vi.mock('./pages/public/PolicyPage', () => ({
   PolicyPage: ({ slug }: { slug: string }) => <div>{slug}</div>,
 }));
@@ -15,6 +16,7 @@ vi.mock('./pages/public/ContentPages', () => ({
   SearchPage: () => <div>search</div>,
   MassPage: () => <div>mass</div>,
   EventsPage: () => <div>events</div>,
+  EventDetailPage: () => <div>event-detail</div>,
   LibraryPage: () => <div>gallery</div>,
   AboutPage: () => <div>about</div>,
   ContactPage: () => <div>contact</div>,
@@ -35,6 +37,7 @@ describe('public routes', () => {
     ['/about', 'about'],
     ['/mass-schedule', 'mass'],
     ['/events', 'events'],
+    ['/events/sinh-hoat-thu-nghiem', 'event-detail'],
     ['/gallery', 'gallery'],
     ['/contact', 'contact'],
     ['/search', 'search'],

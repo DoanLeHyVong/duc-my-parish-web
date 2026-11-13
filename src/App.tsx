@@ -2,6 +2,7 @@ import { lazy, Suspense, type ComponentType } from 'react';
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { PermissionRoute, ProtectedRoute } from './components/admin/ProtectedRoute';
 import { LoadingState } from './components/common/LoadingState';
+import { PageSeo } from './components/common/SiteSeo';
 import { AdminLayout } from './layouts/AdminLayout';
 import { PublicLayout } from './layouts/PublicLayout';
 import { HomePage } from './pages/public/HomePage';
@@ -15,7 +16,9 @@ const CategoryPage = load(content, 'CategoryPage');
 const SearchPage = load(content, 'SearchPage');
 const MassPage = load(content, 'MassPage');
 const EventsPage = load(content, 'EventsPage');
+const EventDetailPage = load(content, 'EventDetailPage');
 const LibraryPage = load(content, 'LibraryPage');
+const AlbumDetailPage = load(content, 'AlbumDetailPage');
 const AboutPage = load(content, 'AboutPage');
 const ContactPage = load(content, 'ContactPage');
 const NotFoundPage = load(content, 'NotFoundPage');
@@ -53,7 +56,7 @@ function LegacyPublicRedirect({ to, dynamic = false }: { to: string; dynamic?: b
 }
 
 export default function App() {
-  return <Suspense fallback={<LoadingState />}><Routes>
+  return <><PageSeo /><Suspense fallback={<LoadingState />}><Routes>
     <Route path="/privacy.html" element={<LegacyPublicRedirect to="/privacy" />} />
     <Route path="/terms.html" element={<LegacyPublicRedirect to="/terms" />} />
     <Route path="/support.html" element={<LegacyPublicRedirect to="/support" />} />
@@ -77,7 +80,9 @@ export default function App() {
       <Route path="search" element={<SearchPage />} />
       <Route path="mass-schedule" element={<MassPage />} />
       <Route path="events" element={<EventsPage />} />
+      <Route path="events/:slug" element={<EventDetailPage />} />
       <Route path="gallery" element={<LibraryPage />} />
+      <Route path="gallery/:id" element={<AlbumDetailPage />} />
       <Route path="about" element={<AboutPage />} />
       <Route path="contact" element={<ContactPage />} />
       <Route path="privacy" element={<PolicyPage slug="privacy-policy" />} />
@@ -101,5 +106,5 @@ export default function App() {
     </Route>
     <Route path="/404" element={<NotFoundPage />} />
     <Route path="*" element={<Navigate to="/404" replace />} />
-  </Routes></Suspense>;
+  </Routes></Suspense></>;
 }

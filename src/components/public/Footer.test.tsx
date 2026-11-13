@@ -43,4 +43,13 @@ describe('Footer', () => {
       expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
     }
   });
+
+  it('renders configured footer links, including external destinations', () => {
+    render(<MemoryRouter><Footer menu={{ items: [
+      { id: 1, label: 'Trang cộng đoàn', url: '/about' },
+      { id: 2, label: 'Trang ngoài', url: 'https://example.org', target: '_blank' },
+    ] as never }} /></MemoryRouter>);
+    expect(screen.getByRole('link', { name: 'Trang cộng đoàn' })).toHaveAttribute('href', '/about');
+    expect(screen.getByRole('link', { name: 'Trang ngoài' })).toHaveAttribute('href', 'https://example.org');
+  });
 });

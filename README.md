@@ -24,6 +24,12 @@ Invoke-WebRequest http://localhost:5173/api/v1/ready
 
 Website công khai và trang quản trị dùng React, TypeScript, Vite, Tailwind CSS, TanStack Query và TipTap.
 
+## CMS và SEO
+
+Đăng nhập `/admin/login`, rồi dùng **Cấu hình website** để đổi tên, giáo phận, thông tin liên hệ, logo, favicon, ảnh bìa, chân trang, SEO mặc định và SEO riêng cho các trang tĩnh. **Banner**, **Trang chủ**, **Menu**, **Bài viết**, **Chuyên mục**, **Sự kiện** và **Album** có form quản lý riêng. Ảnh được tải qua API vào Cloudinary và chọn lại từ thư viện có phân trang; bỏ ảnh khỏi một mục không xóa file. HomeSection quyết định thứ tự và trạng thái hiện/ẩn trên trang chủ.
+
+Tiêu đề tab, mô tả, canonical, Open Graph, Twitter và favicon cập nhật khi điều hướng. Nginx manual config chuyển `/sitemap.xml` đến sitemap động của API, nên nội dung đã xuất bản xuất hiện sau khi lưu CMS. Cấu hình `CLIENT_URL` của API phải có URL HTTPS website; `VITE_SITE_URL` của Web dùng cùng domain. Trang Admin có `X-Robots-Tag: noindex, nofollow` trong Nginx. React SPA chỉ cập nhật metadata sau khi JavaScript chạy; kiểm tra crawler thực tế trước khi xem SEO ở production là hoàn tất.
+
 ## Chạy local
 
 ```powershell

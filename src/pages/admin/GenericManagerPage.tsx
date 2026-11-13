@@ -5,11 +5,12 @@ import { toast } from 'sonner';
 import { api } from '../../apis/client';
 import { AdminDialog } from '../../components/admin/AdminDialog';
 import { HomepagePlacementGuide } from '../../components/admin/HomepagePlacementGuide';
+import { MediaPicker } from '../../components/admin/MediaPicker';
 
 type Field = {
   key: string;
   label: string;
-  type?: 'text' | 'number' | 'textarea' | 'checkbox' | 'datetime-local';
+  type?: 'text' | 'number' | 'textarea' | 'checkbox' | 'datetime-local' | 'image';
   required?: boolean;
 };
 const configs: Record<string, { title: string; fields: Field[] }> = {
@@ -19,6 +20,8 @@ const configs: Record<string, { title: string; fields: Field[] }> = {
       { key: 'name', label: 'Tên chuyên mục', required: true },
       { key: 'slug', label: 'Slug', required: true },
       { key: 'description', label: 'Mô tả', type: 'textarea' },
+      { key: 'seoTitle', label: 'Tiêu đề SEO' },
+      { key: 'seoDescription', label: 'Mô tả SEO', type: 'textarea' },
       { key: 'sortOrder', label: 'Thứ tự', type: 'number' },
       { key: 'isActive', label: 'Đang hiển thị', type: 'checkbox' },
     ],
@@ -35,9 +38,16 @@ const configs: Record<string, { title: string; fields: Field[] }> = {
     fields: [
       { key: 'title', label: 'Tiêu đề', required: true },
       { key: 'subtitle', label: 'Khẩu hiệu' },
-      { key: 'imageUrl', label: 'URL hình ảnh', required: true },
+      { key: 'imageUrl', label: 'Ảnh bìa desktop', type: 'image', required: true },
+      { key: 'mobileImageUrl', label: 'Ảnh bìa điện thoại', type: 'image' },
+      { key: 'primaryText', label: 'Nút thứ nhất — nội dung' },
+      { key: 'primaryUrl', label: 'Nút thứ nhất — đường dẫn' },
+      { key: 'secondaryText', label: 'Nút thứ hai — nội dung' },
+      { key: 'secondaryUrl', label: 'Nút thứ hai — đường dẫn' },
       { key: 'sortOrder', label: 'Thứ tự', type: 'number' },
       { key: 'isActive', label: 'Đang hiển thị', type: 'checkbox' },
+      { key: 'startsAt', label: 'Bắt đầu hiển thị', type: 'datetime-local' },
+      { key: 'endsAt', label: 'Ngừng hiển thị', type: 'datetime-local' },
     ],
   },
   menus: {
@@ -54,7 +64,7 @@ const configs: Record<string, { title: string; fields: Field[] }> = {
       { key: 'sectionKey', label: 'Mã section', required: true },
       { key: 'title', label: 'Tiêu đề', required: true },
       { key: 'componentType', label: 'Layout', required: true },
-      { key: 'displayLimit', label: 'Số bài', type: 'number' },
+      { key: 'displayLimit', label: 'Số mục hiển thị', type: 'number', required: true },
       { key: 'sortOrder', label: 'Thứ tự', type: 'number' },
       { key: 'isVisible', label: 'Hiển thị', type: 'checkbox' },
     ],
@@ -87,9 +97,11 @@ const configs: Record<string, { title: string; fields: Field[] }> = {
       { key: 'title', label: 'Tên sự kiện', required: true },
       { key: 'slug', label: 'Slug', required: true },
       { key: 'description', label: 'Mô tả', type: 'textarea', required: true },
+      { key: 'seoTitle', label: 'Tiêu đề SEO' },
+      { key: 'seoDescription', label: 'Mô tả SEO', type: 'textarea' },
       { key: 'startsAt', label: 'Thời gian', type: 'datetime-local', required: true },
       { key: 'location', label: 'Địa điểm', required: true },
-      { key: 'imageUrl', label: 'URL ảnh' },
+      { key: 'imageUrl', label: 'Ảnh sự kiện', type: 'image' },
       { key: 'isActive', label: 'Hiển thị', type: 'checkbox' },
     ],
   },
@@ -99,7 +111,9 @@ const configs: Record<string, { title: string; fields: Field[] }> = {
       { key: 'title', label: 'Tên album', required: true },
       { key: 'slug', label: 'Slug', required: true },
       { key: 'description', label: 'Mô tả', type: 'textarea' },
-      { key: 'coverUrl', label: 'URL ảnh bìa' },
+      { key: 'seoTitle', label: 'Tiêu đề SEO' },
+      { key: 'seoDescription', label: 'Mô tả SEO', type: 'textarea' },
+      { key: 'coverUrl', label: 'Ảnh bìa', type: 'image' },
       { key: 'isPublished', label: 'Xuất bản', type: 'checkbox' },
     ],
   },
@@ -125,6 +139,7 @@ export function GenericManagerPage({ resource }: { resource: string }) {
     queryKey: ['admin', resource],
     queryFn: () => api.get(`/admin/${resource}`).then((r) => r.data.data),
   });
+  const categories = useQuery({ queryKey: ['admin', 'categories'], queryFn: () => api.get('/admin/categories?limit=100').then((r) => r.data.data), enabled: resource === 'home-sections' });
   const save = useMutation({
     mutationFn: (data: any) =>
       editing
@@ -156,6 +171,7 @@ export function GenericManagerPage({ resource }: { resource: string }) {
     for (const field of config.fields) {
       const raw = form.get(field.key);
       if (field.type === 'checkbox') data[field.key] = raw === 'on';
+      else if (field.type === 'image') data[field.key] = draft[field.key] || (field.required ? undefined : '');
       else if (field.type === 'number') data[field.key] = Number(raw || 0);
       else if (field.type === 'datetime-local') {
         data[field.key] = raw ? new Date(String(raw)).toISOString() : null;
@@ -166,6 +182,18 @@ export function GenericManagerPage({ resource }: { resource: string }) {
           return toast.error('Giá trị JSON không hợp lệ');
         }
       } else if (raw) data[field.key] = raw;
+    }
+    if (resource === 'banners' && !data.imageUrl) return toast.error('Vui lòng chọn ảnh banner');
+    if (resource === 'home-sections') {
+      data.categoryId = form.get('categoryId') ? Number(form.get('categoryId')) : null;
+      data.settings = {
+        ...(editing?.settings && typeof editing.settings === 'object' ? editing.settings : {}),
+        eyebrow: String(form.get('eyebrow') || ''),
+        body: String(form.get('body') || ''),
+        ctaText: String(form.get('ctaText') || ''),
+        ctaUrl: String(form.get('ctaUrl') || ''),
+        imageUrl: draft.sectionImageUrl ?? editing?.settings?.imageUrl ?? '',
+      };
     }
     saveInFlightRef.current = true;
     save.mutate(data);
@@ -265,7 +293,9 @@ export function GenericManagerPage({ resource }: { resource: string }) {
           }}
         >
           <HomepagePlacementGuide resource={resource} sample={draft} compact />
-          {config.fields.map((field) => (
+          {config.fields.map((field) => field.type === 'image' ? (
+            <MediaPicker key={field.key} label={field.label} value={draft[field.key]} folder={resource === 'banners' ? 'banners' : 'general'} onChange={(url) => setDraft((current) => ({ ...current, [field.key]: url }))} />
+          ) : (
             <label key={field.key} className={field.type === 'checkbox' ? 'check-field' : ''}>
               {field.type === 'checkbox' ? (
                 <>
@@ -279,7 +309,9 @@ export function GenericManagerPage({ resource }: { resource: string }) {
               ) : (
                 <>
                   {field.label}
-                  {field.type === 'textarea' ? (
+                  {field.key === 'componentType' ? (
+                    <select name={field.key} defaultValue={editing?.componentType || 'GRID'}><option value="GRID">Lưới</option><option value="LIST">Danh sách</option><option value="FEATURED">Nổi bật</option><option value="SLIDER">Thanh trượt</option></select>
+                  ) : field.type === 'textarea' ? (
                     <textarea
                       name={field.key}
                       rows={5}
@@ -295,10 +327,12 @@ export function GenericManagerPage({ resource }: { resource: string }) {
                       name={field.key}
                       type={field.type || 'text'}
                       required={field.required}
+                      min={field.key === 'displayLimit' ? 1 : undefined}
+                      max={field.key === 'displayLimit' ? 30 : undefined}
                       defaultValue={
                         field.type === 'datetime-local' && editing?.[field.key]
-                          ? new Date(editing[field.key]).toISOString().slice(0, 16)
-                          : editing?.[field.key]
+                          ? new Date(new Date(editing[field.key]).getTime() - new Date(editing[field.key]).getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
+                          : editing?.[field.key] ?? (field.key === 'displayLimit' ? 6 : undefined)
                       }
                     />
                   )}
@@ -306,6 +340,17 @@ export function GenericManagerPage({ resource }: { resource: string }) {
               )}
             </label>
           ))}
+          {resource === 'home-sections' && <div className="cms-section-fields">
+            <label>Chuyên mục bài viết<select name="categoryId" defaultValue={editing?.categoryId || ''}><option value="">Không lọc</option>{categories.data?.map((category: any) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
+            <label>Dòng dẫn<input name="eyebrow" defaultValue={editing?.settings?.eyebrow || ''} /></label>
+            <label>Đoạn giới thiệu<textarea name="body" rows={3} defaultValue={editing?.settings?.body || ''} /></label>
+            <label>Chữ trên nút<input name="ctaText" defaultValue={editing?.settings?.ctaText || ''} /></label>
+            <label>Đường dẫn nút<input name="ctaUrl" defaultValue={editing?.settings?.ctaUrl || ''} /></label>
+            <MediaPicker label="Ảnh section" value={draft.sectionImageUrl ?? editing?.settings?.imageUrl} onChange={(url) => setDraft((current) => ({ ...current, sectionImageUrl: url }))} />
+          </div>}
+          {resource === 'banners' && <div className="cms-banner-preview" style={{ backgroundImage: draft.imageUrl ? `url("${draft.imageUrl}")` : undefined }} aria-label="Xem trước banner">
+            <div><small>Xem trước banner</small><h2>{draft.title || 'Tiêu đề banner'}</h2><p>{draft.subtitle}</p><span>{draft.primaryText}</span>{draft.secondaryText && <span>{draft.secondaryText}</span>}</div>
+          </div>}
           <div className="modal-actions">
             <button
               type="button"

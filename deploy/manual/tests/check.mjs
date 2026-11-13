@@ -29,3 +29,9 @@ test('rollback refuses an unknown Web release', () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /unknown/i);
 });
+
+test('Nginx serves a dynamic sitemap and marks Admin as noindex', () => {
+  const nginx = readFileSync(path.join(root, 'deploy/manual/ducmy-web.nginx.conf'), 'utf8');
+  assert.match(nginx, /location = \/sitemap\.xml[\s\S]*?proxy_pass http:\/\/127\.0\.0\.1:5000\/api\/v1\/public\/sitemap\.xml/);
+  assert.match(nginx, /location \/admin[\s\S]*?X-Robots-Tag "noindex, nofollow"/);
+});

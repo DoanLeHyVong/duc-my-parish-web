@@ -12,6 +12,7 @@ export function MenuManagerPage() {
   const [menuDraft, setMenuDraft] = useState<any>({});
   const [open, setOpen] = useState(false);
   const [dragId, setDragId] = useState<number | null>(null);
+  const [location, setLocation] = useState<'HEADER' | 'FOOTER'>('HEADER');
   const dialogTriggerRef = useRef<HTMLElement | null>(null);
   const saveInFlightRef = useRef(false);
   const menus = useQuery({
@@ -22,18 +23,24 @@ export function MenuManagerPage() {
     queryKey: ['admin', 'menu-items'],
     queryFn: () => api.get('/admin/menu-items?limit=100').then((r) => r.data.data),
   });
-  const headerMenu = menus.data?.find((m: any) => m.location === 'HEADER') || menus.data?.[0];
+  const headerMenu = menus.data?.find((m: any) => m.location === location);
   const ordered = [...(items.data || [])]
     .filter((i: any) => i.menuId === headerMenu?.id)
     .sort((a: any, b: any) => a.sortOrder - b.sortOrder);
   const save = useMutation({
-    mutationFn: (data: any) =>
-      editing
-        ? api.put(`/admin/menu-items/${editing.id}`, data)
-        : api.post('/admin/menu-items', data),
+    mutationFn: async (data: any) => {
+      let menuId = headerMenu?.id;
+      if (!menuId) {
+        const created = await api.post('/admin/menus', { name: location === 'HEADER' ? 'Điều hướng chính' : 'Chân trang', location, isActive: true });
+        menuId = created.data.data.id;
+      }
+      return editing ? api.put(`/admin/menu-items/${editing.id}`, { ...data, menuId }) : api.post('/admin/menu-items', { ...data, menuId });
+    },
     onSuccess: () => {
       toast.success('Đã lưu menu');
       client.invalidateQueries({ queryKey: ['admin', 'menu-items'] });
+      client.invalidateQueries({ queryKey: ['admin', 'menus'] });
+      client.invalidateQueries({ queryKey: ['home'] });
       setOpen(false);
       setEditing(null);
     },
@@ -66,7 +73,6 @@ export function MenuManagerPage() {
     const form = new FormData(e.currentTarget);
     saveInFlightRef.current = true;
     save.mutate({
-      menuId: headerMenu.id,
       label: form.get('label'),
       url: form.get('url'),
       linkType: form.get('linkType'),
@@ -97,6 +103,7 @@ export function MenuManagerPage() {
         </button>
       </div>
       <HomepagePlacementGuide resource="menus" sample={{ items: ordered }} />
+      <label className="admin-card">Vị trí menu <select value={location} onChange={(event) => setLocation(event.target.value as 'HEADER' | 'FOOTER')}><option value="HEADER">Đầu trang</option><option value="FOOTER">Chân trang</option></select></label>
       <div className="admin-card menu-manager">
         {ordered.map((item: any) => (
           <div

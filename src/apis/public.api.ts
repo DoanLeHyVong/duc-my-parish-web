@@ -9,6 +9,8 @@ export const publicApi = {
   search: (q: string) => api.get('/public/search', { params: { q } }).then((r) => r.data.data),
   masses: () => api.get('/public/mass-schedules').then((r) => r.data.data),
   events: () => api.get('/public/events').then((r) => r.data.data),
+  event: (slug: string) => api.get(`/public/events/${encodeURIComponent(slug)}`).then((r) => r.data.data),
   albums: () => api.get('/public/albums').then((r) => r.data.data),
+  album: (id: string) => api.get(`/public/albums/${encodeURIComponent(id)}`).then((r) => r.data.data),
   profile: () => api.get('/public/parish-profile').then((r) => r.data.data),
 };

@@ -32,6 +32,8 @@ const legacyPublicPaths: Record<string, string> = {
 };
 
 function canonicalMenuUrl(url: string) {
+  if (!url.startsWith('/') && !url.startsWith('https://')) return '/';
+  if (url.startsWith('//')) return '/';
   const [, path = url, suffix = ''] = url.match(/^([^?#]*)(.*)$/) || [];
   const staticPath = legacyPublicPaths[path];
   if (staticPath) return `${staticPath}${suffix}`;
@@ -47,26 +49,32 @@ function canonicalMenuUrl(url: string) {
 export function Header({ data }: { data?: HomeData }) {
   const [open, setOpen] = useState(false);
   const nav = data?.menu?.items?.length
-    ? data.menu.items.map((i) => [i.label, canonicalMenuUrl(i.url || '/')])
-    : fallbackNav;
+    ? data.menu.items.map((item) => ({ ...item, url: canonicalMenuUrl(item.url || '/') }))
+    : fallbackNav.map(([label, url], id) => ({ id, label, url, target: '_self' }));
+  const navLink = (item: typeof nav[number]) => item.url.startsWith('https://')
+    ? <a href={item.url} target={item.target === '_blank' ? '_blank' : undefined} rel={item.target === '_blank' ? 'noopener noreferrer' : undefined} onClick={() => setOpen(false)}>{item.label}</a>
+    : <NavLink to={item.url} onClick={() => setOpen(false)}>{item.label}</NavLink>;
   const date = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date());
   return (
     <header id="menu-trang-chu">
       <div className="topbar">
         <div className="container topbar-inner">
-          <span><MapPin size={14} /> {data?.profile?.address || 'Giáo xứ Đức Mỹ — Giáo phận Bà Rịa'}</span>
+          <span><MapPin size={14} /> {data?.profile?.address || data?.profile?.name || 'Giáo xứ'}</span>
           <span className="topbar-cross" aria-hidden="true">✣</span>
           <span><CalendarDays size={14} /> {date}</span>
         </div>
       </div>
       <div className="navbar">
         <div className="container nav-inner">
-          <Link to="/" className="brand" aria-label="Giáo xứ Đức Mỹ">
-            {data?.profile?.logoUrl ? <img src={data.profile.logoUrl} alt="Logo Giáo xứ Đức Mỹ" /> : <span className="parish-seal"><i>GIÁO XỨ ĐỨC MỸ</i><b>✝</b><em>ĐM</em><small>GIÁO PHẬN BÀ RỊA</small></span>}
-            <span className="brand-title"><strong>GIÁO XỨ ĐỨC MỸ</strong></span>
+          <Link to="/" className="brand" aria-label={data?.profile?.name || 'Trang chủ'}>
+            {data?.profile?.logoUrl ? <img src={data.profile.logoUrl} alt={`Logo ${data.profile.name}`} /> : <span className="parish-seal" aria-hidden="true"><b>✝</b></span>}
+            <span className="brand-title"><strong>{data?.profile?.name || 'Giáo xứ'}</strong></span>
           </Link>
           <nav className={open ? 'open' : ''}>
-            {nav.map(([label, url]) => <NavLink key={`${label}-${url}`} to={url!} onClick={() => setOpen(false)}>{label}</NavLink>)}
+            {nav.filter((item) => !('parentId' in item) || !item.parentId).map((item) => {
+              const children = nav.filter((child) => 'parentId' in child && child.parentId === item.id);
+              return <div key={item.id} className="nav-group">{navLink(item)}{children.length > 0 && <div className="nav-submenu">{children.map((child) => <div key={child.id}>{navLink(child)}</div>)}</div>}</div>;
+            })}
           </nav>
           <div className="nav-actions">
             <Link to="/search" aria-label="Tìm kiếm"><Search /></Link>
