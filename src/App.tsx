@@ -6,7 +6,7 @@ import { PageSeo } from './components/common/SiteSeo';
 import { AdminLayout } from './layouts/AdminLayout';
 import { PublicLayout } from './layouts/PublicLayout';
 import { HomePage } from './pages/public/HomePage';
-import { PolicyPage } from './pages/public/PolicyPage';
+import { PolicyPage, CustomPolicyPage } from './pages/public/PolicyPage';
 
 const load = <T extends Record<string, unknown>>(factory: () => Promise<T>, name: keyof T) =>
   lazy(() => factory().then((module) => ({ default: module[name] as ComponentType<any> })));
@@ -89,6 +89,7 @@ export default function App() {
       <Route path="terms" element={<PolicyPage slug="terms-of-use" />} />
       <Route path="support" element={<PolicyPage slug="support" />} />
       <Route path="data-request" element={<PolicyPage slug="data-request" />} />
+      <Route path="policies/:slug" element={<CustomPolicyPage />} />
     </Route>
     <Route path="/admin/login" element={<LoginPage />} />
     <Route element={<ProtectedRoute />}>

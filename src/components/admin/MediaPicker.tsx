@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import axios from 'axios';
 import { api } from '../../apis/client';
 
 type Media = { id: number; secureUrl: string; thumbnailUrl?: string; altText?: string; originalName: string };
@@ -41,7 +42,11 @@ export function MediaPicker({ label, value, onChange, folder = 'general', onSele
       <button type="button" className="button outline" onClick={() => setOpen((current) => !current)}>{open ? 'Đóng thư viện' : 'Chọn từ thư viện'}</button>
       {value && <button type="button" className="button outline" onClick={() => { onChange(''); onSelect?.(null); }}>Bỏ ảnh khỏi mục này</button>}
     </div>
-    {upload.isError && <p role="alert">Tải ảnh thất bại. Vui lòng thử lại.</p>}
+    {upload.isError && <p role="alert">{axios.isAxiosError(upload.error)
+      && [413, 415, 422, 502, 503].includes(upload.error.response?.status ?? 0)
+      && typeof upload.error.response?.data?.message === 'string'
+      && upload.error.response.data.message.length <= 160
+      ? upload.error.response.data.message : 'Tải ảnh thất bại. Vui lòng thử lại.'}</p>}
     {open && <div className="cms-media-library">
       {media.isPending && <p>Đang tải thư viện ảnh…</p>}
       {media.isError && <p role="alert">Không thể tải thư viện. <button type="button" onClick={() => media.refetch()}>Thử lại</button></p>}

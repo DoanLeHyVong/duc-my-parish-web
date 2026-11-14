@@ -67,3 +67,7 @@ npm run preview
 Import repository vào Vercel với framework Vite, build command `npm run build` và output directory `dist`. Đặt `VITE_API_URL` thành HTTPS URL của Railway API (kèm `/api/v1`) và `VITE_SITE_URL` thành URL website. `vercel.json` xử lý fallback cho React Router; sitemap và robots được tạo theo `VITE_SITE_URL` trong lúc build.
 
 Database production phải là MySQL/MariaDB managed hoặc database riêng trên server; XAMPP chỉ dành cho local development. React không chứa thông tin database hay Cloudinary secret.
+
+# GitHub Actions email notifications
+
+Web CI verifies source; **Web Production Deployment** reports success only after the release smoke check. To receive both success and failure emails in your personal Gmail, configure your verified email in GitHub **Settings → Notifications → System → Actions**, select **Email**, and leave **Only notify for failed workflows** disabled. Watch this repository and check the Actions tab for runs you did not trigger. GitHub controls email delivery and filtering. No webhook, SMTP service, or notification token is used.

@@ -1,4 +1,4 @@
-name: Parish Web CI
+name: Web CI
 
 on:
   pull_request:

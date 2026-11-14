@@ -2,6 +2,7 @@ import { CalendarDays, MapPin, Menu, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import type { HomeData } from '../../types';
+import { usePolicyVisibility } from './usePolicyVisibility';
 
 const fallbackNav = [
   ['Trang chủ', '/'],
@@ -48,8 +49,9 @@ function canonicalMenuUrl(url: string) {
 
 export function Header({ data }: { data?: HomeData }) {
   const [open, setOpen] = useState(false);
+  const policyVisible = usePolicyVisibility();
   const nav = data?.menu?.items?.length
-    ? data.menu.items.map((item) => ({ ...item, url: canonicalMenuUrl(item.url || '/') }))
+    ? data.menu.items.map((item) => ({ ...item, url: canonicalMenuUrl(item.url || '/') })).filter((item) => policyVisible(item.url))
     : fallbackNav.map(([label, url], id) => ({ id, label, url, target: '_self' }));
   const navLink = (item: typeof nav[number]) => item.url.startsWith('https://')
     ? <a href={item.url} target={item.target === '_blank' ? '_blank' : undefined} rel={item.target === '_blank' ? 'noopener noreferrer' : undefined} onClick={() => setOpen(false)}>{item.label}</a>

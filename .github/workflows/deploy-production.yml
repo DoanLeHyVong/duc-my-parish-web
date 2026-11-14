@@ -1,4 +1,4 @@
-name: Parish Web production delivery
+name: Web Production Deployment
 
 on:
   push:

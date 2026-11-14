@@ -8,6 +8,7 @@ vi.mock('./layouts/PublicLayout', () => ({ PublicLayout: () => <Outlet /> }));
 vi.mock('./components/common/SiteSeo', () => ({ PageSeo: () => null }));
 vi.mock('./pages/public/PolicyPage', () => ({
   PolicyPage: ({ slug }: { slug: string }) => <div>{slug}</div>,
+  CustomPolicyPage: () => <div>custom-policy</div>,
 }));
 vi.mock('./pages/public/HomePage', () => ({ HomePage: () => <div>home</div> }));
 vi.mock('./pages/public/ContentPages', () => ({
@@ -47,6 +48,7 @@ describe('public routes', () => {
     ['/terms', 'terms-of-use'],
     ['/support', 'support'],
     ['/data-request', 'data-request'],
+    ['/policies/community-rules', 'custom-policy'],
   ])('serves canonical route %s', async (path, content) => {
     render(
       <MemoryRouter initialEntries={[path]}>

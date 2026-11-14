@@ -1,11 +1,20 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Footer } from './Footer';
 
-afterEach(cleanup);
+let hidden = false;
+vi.mock('./usePolicyVisibility', () => ({ usePolicyVisibility: () => (url: string) => !hidden || url !== '/privacy', usePublicPolicies: () => ({ data: [] }) }));
+
+afterEach(() => { hidden = false; cleanup(); });
 
 describe('Footer', () => {
+  it('does not expose a hidden policy link', () => {
+    hidden = true;
+    render(<MemoryRouter><Footer /></MemoryRouter>);
+    expect(screen.queryByRole('link', { name: 'Quyền riêng tư' })).not.toBeInTheDocument();
+    hidden = false;
+  });
   it('links to every public policy route', () => {
     render(
       <MemoryRouter>

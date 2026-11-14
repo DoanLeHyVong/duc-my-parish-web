@@ -1,8 +1,11 @@
 import { Church, Globe2, Mail, MapPin, Phone, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { MenuItem, ParishProfile } from '../../types';
+import { usePolicyVisibility, usePublicPolicies } from './usePolicyVisibility';
 
 export function Footer({ profile, menu }: { profile?: ParishProfile | null; menu?: { items: MenuItem[] } | null }) {
+  const policyVisible = usePolicyVisibility();
+  const publicPolicies = usePublicPolicies();
   return (
     <footer className="footer">
       <div className="container footer-grid">
@@ -26,7 +29,7 @@ export function Footer({ profile, menu }: { profile?: ParishProfile | null; menu
         </div>
         <div>
           <h3>Khám phá</h3>
-          {menu?.items?.length ? menu.items.map((item) => item.url?.startsWith('https://')
+          {menu?.items?.length ? menu.items.filter((item) => policyVisible(item.url || '/')).map((item) => item.url?.startsWith('https://')
             ? <a key={item.id} href={item.url} target={item.target === '_blank' ? '_blank' : undefined} rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}>{item.label}</a>
             : <Link key={item.id} to={item.url?.startsWith('/') && !item.url.startsWith('//') ? item.url : '/'}>{item.label}</Link>) : <><Link to="/about">Giới thiệu</Link><Link to="/mass-schedule">Giờ lễ</Link><Link to="/events">Sự kiện</Link><Link to="/gallery">Thư viện</Link></>}
         </div>
@@ -36,10 +39,11 @@ export function Footer({ profile, menu }: { profile?: ParishProfile | null; menu
           <Link to="/categories/announcements">Thông báo</Link>
           <Link to="/categories/daily-word">Lời Chúa</Link>
           <Link to="/contact">Liên hệ</Link>
-          <Link to="/privacy">Quyền riêng tư</Link>
-          <Link to="/terms">Điều khoản sử dụng</Link>
-          <Link to="/support">Hỗ trợ</Link>
-          <Link to="/data-request">Yêu cầu dữ liệu</Link>
+          {policyVisible('/privacy') && <Link to="/privacy">Quyền riêng tư</Link>}
+          {policyVisible('/terms') && <Link to="/terms">Điều khoản sử dụng</Link>}
+          {policyVisible('/support') && <Link to="/support">Hỗ trợ</Link>}
+          {policyVisible('/data-request') && <Link to="/data-request">Yêu cầu dữ liệu</Link>}
+          {publicPolicies.data?.filter((item) => !item.kind).map((item) => <Link key={item.slug} to={`/policies/${item.slug}`}>{item.title}</Link>)}
         </div>
         <div>
           <h3>Liên hệ</h3>
