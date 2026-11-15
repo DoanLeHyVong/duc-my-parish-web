@@ -33,6 +33,19 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
+it('preserves Vietnamese category names and existing public slugs', async () => {
+  vi.mocked(api.get).mockResolvedValue({ data: { data: [{ id: 8, name: 'Phụng vụ', slug: 'pha-ng-va', isActive: true }] } });
+  renderPage();
+  expect(await screen.findByText('Phụng vụ')).toBeInTheDocument();
+  expect(screen.getByText('pha-ng-va')).toBeInTheDocument();
+  vi.mocked(api.put).mockResolvedValue({ data: { data: {} } });
+  fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa Phụng vụ' }));
+  const dialog = screen.getByRole('dialog');
+  fireEvent.change(within(dialog).getByLabelText(/Tên/), { target: { value: 'Phụng vụ đã kiểm tra' } });
+  fireEvent.submit(within(dialog).getByRole('button', { name: /Lưu thay đổi/i }).closest('form')!);
+  await waitFor(() => expect(api.put).toHaveBeenCalledWith('/admin/categories/8', expect.objectContaining({ name: 'Phụng vụ đã kiểm tra', slug: 'pha-ng-va' })));
+});
+
 describe('GenericManagerPage dialog save', () => {
   it('names item actions and blocks duplicate submission and dismissal while saving', async () => {
     let resolveSave!: (value: { data: { data: object } }) => void;

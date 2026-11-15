@@ -554,12 +554,17 @@ td svg { width: 16px; }
   .section { padding: 70px 0; }
   .topbar-inner span:first-child { max-width: 55%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .topbar-church { display: none; }
-  .navbar { height: 104px; }
+  .navbar { height: auto; min-height: 104px; }
+  .nav-inner { min-height: 104px; padding-block: 12px; }
   .parish-seal { width: 76px; height: 76px; }
   .parish-seal i, .parish-seal small, .parish-seal em { display: none; }
   .parish-seal b { transform: none; }
-  .brand-title strong { font-size: 23px; }
-  .navbar nav { display: none; position: absolute; top: 104px; inset-inline: 0; height: auto; background: white; padding: 16px 22px 25px; box-shadow: 0 20px 30px #0b2e4f20; }
+  .brand { flex: 1; min-width: 0; gap: 12px; }
+  .brand img { width: 56px; height: 56px; flex-shrink: 0; }
+  .brand-title { min-width: 0; padding-left: 12px; }
+  .brand-title strong { font-size: 23px; white-space: normal; line-height: 1.4; overflow-wrap: anywhere; }
+  .nav-actions { flex-shrink: 0; }
+  .navbar nav { display: none; position: absolute; top: 100%; inset-inline: 0; height: auto; background: white; padding: 16px 22px 25px; box-shadow: 0 20px 30px #0b2e4f20; }
   .navbar nav.open { display: grid; }
   .navbar nav .nav-group { height: auto; }
   .navbar nav .nav-submenu { display: block; position: static; box-shadow: none; padding: 0 0 0 18px; }

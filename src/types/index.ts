@@ -29,6 +29,7 @@ export type ParishProfile = {
   mapEmbedUrl?: string;
   logoUrl?: string;
   faviconUrl?: string;
+  updatedAt?: string;
   heroUrl?: string;
   tagline?: string;
   footerText?: string;

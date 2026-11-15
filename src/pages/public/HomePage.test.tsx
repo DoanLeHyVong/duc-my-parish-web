@@ -76,3 +76,14 @@ it('renders configured sections in API order with their own text and link', asyn
   const sections = document.querySelectorAll('section');
   expect([...sections].findIndex((node) => node.textContent?.includes('Tin cập nhật'))).toBeLessThan([...sections].findIndex((node) => node.textContent?.includes('Cộng đoàn chúng tôi')));
 });
+
+it('renders Vietnamese Hero text from the API without changing its encoding', async () => {
+  vi.mocked(publicApi.home).mockResolvedValue({
+    profile: { name: 'Giáo xứ Đức Mỹ', diocese: 'Giáo phận Bà Rịa', description: 'Hiệp nhất', address: '' },
+    banners: [{ id: 1, title: 'Giáo xứ Đức Mỹ', subtitle: 'Giáo phận Bà Rịa', imageUrl: '/favicon.svg', primaryText: 'Xem giờ lễ', primaryUrl: '/mass-schedule' }],
+    menu: null, sections: [], posts: [], announcements: [], massSchedules: [], events: [], albums: [],
+  });
+  render(<QueryClientProvider client={new QueryClient()}><HelmetProvider><MemoryRouter><HomePage /></MemoryRouter></HelmetProvider></QueryClientProvider>);
+  expect(await screen.findByRole('link', { name: 'Xem giờ lễ' })).toHaveAttribute('href', '/mass-schedule');
+  expect(screen.getByRole('heading', { name: 'Giáo xứ Đức Mỹ', level: 1 })).toBeInTheDocument();
+});

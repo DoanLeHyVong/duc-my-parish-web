@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 import { publicApi } from '../../apis/public.api';
+import { SiteFavicon } from './SiteFavicon';
 
 const publicLabels: Record<string, string> = {
   '/': '', '/about': 'Giới thiệu', '/contact': 'Liên hệ', '/search': 'Tìm kiếm',
@@ -31,7 +32,7 @@ export function PageSeo({ title, description, image, noindex }: { title?: string
   const origin = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, '');
   const canonical = `${origin}${pathname}`;
   const shareImage = image || pageSetting?.image || profile?.ogImageUrl || profile?.heroUrl;
-  return <Helmet key={pathname}>
+  return <><SiteFavicon url={profile?.faviconUrl} revision={profile?.updatedAt} /><Helmet key={pathname}>
     <title>{fullTitle}</title>
     <meta name="description" content={summary} />
     <link rel="canonical" href={canonical} />
@@ -44,6 +45,5 @@ export function PageSeo({ title, description, image, noindex }: { title?: string
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={summary} />
     <meta name="robots" content={noindex || admin || pathname === '/search' || pathname === '/404' ? 'noindex,nofollow' : 'index,follow'} />
-    <link rel="icon" href={profile?.faviconUrl || '/favicon.svg'} />
-  </Helmet>;
+  </Helmet></>;
 }
